@@ -16,7 +16,6 @@ export default function HearingLossResultsScreen() {
         />
         
         <View style={styles.resultBox}>
-          <Text style={styles.resultTitle}>Hearing Loss Assessment</Text>
           <Text style={styles.resultText}>
             Binnen verschillende richtlijnen worden voor dit profiel aanvullende klinische parameters meegenomen bij de evaluatie.
           </Text>
@@ -32,16 +31,13 @@ export default function HearingLossResultsScreen() {
         {showDetails && (
           <View style={styles.detailsBox}>
             <Text style={styles.detailsText}>
-              Additional clinical parameters and detailed assessment guidelines for this hearing loss profile:
+              Het audiogram toont een ernstig gehoorverlies, bilateraal aanwezig, met een duidelijke toename van het verlies in het mididen- en hoge frequentiebereik.
             </Text>
             <Text style={styles.detailsText}>
-              • Audiological assessment
+              De drempelwaarden liggen over meerdere frequenties verhoogd, wat kan wijzen op een significante beperking in functioneel gehoor.
             </Text>
             <Text style={styles.detailsText}>
-              • Speech discrimination
-            </Text>
-            <Text style={styles.detailsText}>
-              • Patient counseling
+              De gemeten spraakverstaanbaarheid is beperkt in verhouding tot de gehoordrempels, wat binnen verschillende richtlijnen wordt meegenomen als aanvullende parameter bij verdere evaluatie.
             </Text>
           </View>
         )}
@@ -79,18 +75,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   resultBox: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,
-    marginVertical: 30,
-    borderLeftWidth: 4,
-    borderLeftColor: '#E31937',
-  },
-  resultTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 10,
+    marginVertical: 20,
+    borderLeftWidth: 0,
   },
   resultText: {
     fontSize: 14,
@@ -98,27 +87,31 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   readMoreButton: {
-    marginVertical: 15,
+    borderWidth: 1,
+    borderColor: '#333',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+    alignItems: 'center',
+    marginVertical: 20,
   },
   readMoreText: {
     fontSize: 14,
-    color: '#E31937',
+    color: '#333',
     fontWeight: '600',
-    textDecorationLine: 'underline',
   },
   detailsBox: {
     backgroundColor: '#fff',
     borderRadius: 8,
-    padding: 15,
-    marginTop: 15,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
+    padding: 0,
+    marginTop: 0,
+    borderWidth: 0,
   },
   detailsText: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#333',
-    marginBottom: 8,
-    lineHeight: 18,
+    marginBottom: 12,
+    lineHeight: 20,
   },
   buttonContainer: {
     paddingHorizontal: 20,
