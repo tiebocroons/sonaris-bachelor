@@ -1,11 +1,15 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Ear } from '@/components/icons/Ear';
+import { Image } from 'expo-image';
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Ear size={120} color="#E31937" />
+        <Image
+          source={require('@/assets/sonaris.svg')}
+          style={styles.logo}
+          contentFit="contain"
+        />
         <Text style={styles.title}>Audiogram Scanner</Text>
         <Text style={styles.subtitle}>Scan and analyze your audiograms</Text>
       </View>
@@ -29,6 +33,11 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
     marginTop: 80,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 20,
   },
   title: {
     fontSize: 28,
