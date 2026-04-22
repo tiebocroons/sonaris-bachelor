@@ -1,56 +1,24 @@
-import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
 import Svg, { Path } from 'react-native-svg';
 
 export default function LoadingScreen() {
-  const dot1Opacity = useRef(new Animated.Value(0)).current;
-  const dot2Opacity = useRef(new Animated.Value(0)).current;
-  const dot3Opacity = useRef(new Animated.Value(0)).current;
+  const [visibleDots, setVisibleDots] = useState(0);
 
   useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(dot1Opacity, {
-          toValue: 1,
-          duration: 300,
-          easing: Easing.ease,
-          useNativeDriver: true,
-        }),
-        Animated.timing(dot2Opacity, {
-          toValue: 1,
-          duration: 300,
-          easing: Easing.ease,
-          useNativeDriver: true,
-        }),
-        Animated.timing(dot3Opacity, {
-          toValue: 1,
-          duration: 300,
-          easing: Easing.ease,
-          useNativeDriver: true,
-        }),
-        Animated.delay(500),
-        Animated.timing(dot1Opacity, {
-          toValue: 0,
-          duration: 300,
-          easing: Easing.ease,
-          useNativeDriver: true,
-        }),
-        Animated.timing(dot2Opacity, {
-          toValue: 0,
-          duration: 300,
-          easing: Easing.ease,
-          useNativeDriver: true,
-        }),
-        Animated.timing(dot3Opacity, {
-          toValue: 0,
-          duration: 300,
-          easing: Easing.ease,
-          useNativeDriver: true,
-        }),
-        Animated.delay(500),
-      ])
-    ).start();
-  }, [dot1Opacity, dot2Opacity, dot3Opacity]);
+    const interval = setInterval(() => {
+      setVisibleDots((prev) => (prev + 1) % 6);
+    }, 300);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getDotOpacity = (dotIndex: number) => {
+    if (visibleDots >= dotIndex && visibleDots < 3) {
+      return 1;
+    }
+    return 0.2;
+  };
 
   return (
     <View style={styles.container}>
@@ -65,33 +33,30 @@ export default function LoadingScreen() {
           fill="#E60F30"
         />
         {/* Animated dots */}
-        <Animated.View style={{ opacity: dot1Opacity }}>
-          <Path
-            d="M165 139H165.039"
-            stroke="#E60F30"
-            strokeWidth="18"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </Animated.View>
-        <Animated.View style={{ opacity: dot2Opacity }}>
-          <Path
-            d="M197 139H197.039"
-            stroke="#E60F30"
-            strokeWidth="18"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </Animated.View>
-        <Animated.View style={{ opacity: dot3Opacity }}>
-          <Path
-            d="M229 139H229.039"
-            stroke="#E60F30"
-            strokeWidth="18"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </Animated.View>
+        <Path
+          d="M165 139H165.039"
+          stroke="#E60F30"
+          strokeWidth="18"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity={getDotOpacity(0)}
+        />
+        <Path
+          d="M197 139H197.039"
+          stroke="#E60F30"
+          strokeWidth="18"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity={getDotOpacity(1)}
+        />
+        <Path
+          d="M229 139H229.039"
+          stroke="#E60F30"
+          strokeWidth="18"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity={getDotOpacity(2)}
+        />
       </Svg>
       <Text style={styles.text}>Analysering van audiogram...</Text>
     </View>
