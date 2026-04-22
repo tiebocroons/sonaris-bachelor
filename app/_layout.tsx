@@ -6,7 +6,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: 'home',
 };
 
 export default function RootLayout() {
@@ -15,8 +15,8 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
+        <Stack.Screen name="home" options={{ title: 'Home', headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="home" options={{ title: 'Home', headerShown: true }} />
         <Stack.Screen name="upload-audiogram" options={{ title: 'Upload Audiogram', headerShown: true }} />
         <Stack.Screen name="scan-instructions" options={{ title: 'Scan Instructions', headerShown: true }} />
         <Stack.Screen name="error-screen" options={{ title: 'Error', headerShown: true }} />
