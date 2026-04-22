@@ -38,6 +38,19 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow Sonaris to access your photos for storing audiogram images.",
+          "savePhotosPermission": "Allow Sonaris to save audiogram photos to your library."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Sonaris to access your camera to capture audiogram photos."
+        }
       ]
     ],
     "experiments": {
