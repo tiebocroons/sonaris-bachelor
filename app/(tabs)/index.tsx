@@ -10,8 +10,15 @@ export default function HomeScreen() {
           style={styles.logo}
           contentFit="contain"
         />
-        <Text style={styles.title}>Audiogram Scanner</Text>
-        <Text style={styles.subtitle}>Scan and analyze your audiograms</Text>
+        <Text style={styles.description}>
+          Scan jou audiogrammen met{'\n'}
+          onze app{'\n'}
+          en geef de beste resultaten{'\n'}
+          aan u patiënten.
+        </Text>
+        <Pressable style={styles.infoLink}>
+          <Text style={styles.infoLinkText}>Meer info over de app</Text>
+        </Pressable>
       </View>
       
       <Pressable style={styles.button}>
@@ -38,6 +45,21 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     marginBottom: 20,
+  },
+  description: {
+    fontSize: 14,
+    color: '#333',
+    marginTop: 20,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  infoLink: {
+    marginTop: 20,
+  },
+  infoLinkText: {
+    fontSize: 14,
+    color: '#E31937',
+    textDecorationLine: 'underline',
   },
   title: {
     fontSize: 28,
