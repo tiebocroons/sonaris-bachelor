@@ -87,18 +87,13 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   readMoreButton: {
-    borderWidth: 1,
-    borderColor: '#333',
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 20,
-    alignItems: 'center',
-    marginVertical: 20,
+    marginVertical: 15,
   },
   readMoreText: {
     fontSize: 14,
-    color: '#333',
+    color: '#E31937',
     fontWeight: '600',
+    textDecorationLine: 'underline',
   },
   detailsBox: {
     backgroundColor: '#fff',
