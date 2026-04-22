@@ -1,7 +1,9 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
+  const router = useRouter();
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -16,12 +18,18 @@ export default function HomeScreen() {
           en geef de beste resultaten{'\n'}
           aan u patiënten.
         </Text>
-        <Pressable style={styles.infoLink}>
+        <Pressable 
+          style={styles.infoLink}
+          onPress={() => router.push('/(tabs)/scan-instructions')}
+        >
           <Text style={styles.infoLinkText}>Meer info over de app</Text>
         </Pressable>
       </View>
       
-      <Pressable style={styles.button}>
+      <Pressable 
+        style={styles.button}
+        onPress={() => router.push('/(tabs)/upload-audiogram')}
+      >
         <Text style={styles.buttonText}>Get Started</Text>
       </Pressable>
     </View>

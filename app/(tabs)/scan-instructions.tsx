@@ -1,7 +1,9 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 
 export default function ScanInstructionsScreen() {
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
