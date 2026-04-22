@@ -1,10 +1,13 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
+
+const BACKEND_URL = 'https://your-backend-api.com/scan-audiogram'; // Replace with actual backend URL
 
 export default function LoadingScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ photoUri: string }>();
   const [visibleDots, setVisibleDots] = useState(0);
 
   useEffect(() => {
@@ -16,12 +19,56 @@ export default function LoadingScreen() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      router.push('/(tabs)/hearing-loss-results');
-    }, 5000);
+    const scanAudiogramPhoto = async () => {
+      try {
+        if (!params.photoUri) {
+          throw new Error('No photo provided');
+        }
 
+        // Create FormData to send the image
+        const formData = new FormData();
+        formData.append('image', {
+          uri: params.photoUri,
+          type: 'image/jpeg',
+          name: 'audiogram.jpg',
+        } as any);
+
+        // Send to backend
+        const response = await fetch(BACKEND_URL, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        // Check if scanning was successful
+        if (result.success) {
+          // Navigate to results screen after 5 seconds
+          setTimeout(() => {
+            router.push('/(tabs)/hearing-loss-results');
+          }, 5000);
+        } else {
+          // Navigate to error screen if audiogram couldn't be read
+          throw new Error(result.error || 'Could not scan audiogram');
+        }
+      } catch (error) {
+        console.error('Error scanning audiogram:', error);
+        // Navigate to error screen on failure
+        router.push('/(tabs)/error-screen');
+      }
+    };
+
+    // Start scanning after a short delay
+    const timer = setTimeout(scanAudiogramPhoto, 1000);
     return () => clearTimeout(timer);
-  }, [router]);
+  }, [params.photoUri, router]);
 
   const getDotOpacity = (dotIndex: number) => {
     if (visibleDots >= dotIndex && visibleDots < 3) {

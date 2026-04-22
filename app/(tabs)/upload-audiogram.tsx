@@ -26,8 +26,11 @@ export default function UploadAudiogramScreen() {
         });
         setImage(photo.uri);
         setShowCamera(false);
-        // Automatically navigate to loading screen after photo is taken
-        router.push('/(tabs)/loading-screen');
+        // Navigate to loading screen with photo URI
+        router.push({
+          pathname: '/(tabs)/loading-screen',
+          params: { photoUri: photo.uri }
+        });
       } catch (error) {
         console.error('Error taking photo:', error);
       }
