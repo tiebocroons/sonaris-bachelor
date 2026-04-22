@@ -5,6 +5,7 @@ export default function TabLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="upload-audiogram" />
+      <Stack.Screen name="loading-screen" />
       <Stack.Screen name="scan-instructions" />
       <Stack.Screen name="error-screen" />
       <Stack.Screen name="hearing-loss-results" />

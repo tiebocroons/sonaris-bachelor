@@ -3,22 +3,17 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import * as MediaLibrary from 'expo-media-library';
 
 export default function UploadAudiogramScreen() {
   const router = useRouter();
   const [image, setImage] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
-  const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
   const cameraRef = useRef<CameraView>(null);
 
   useEffect(() => {
     if (!permission?.granted) {
       requestPermission();
-    }
-    if (!mediaPermission?.granted) {
-      requestMediaPermission();
     }
   }, []);
 
@@ -31,6 +26,8 @@ export default function UploadAudiogramScreen() {
         });
         setImage(photo.uri);
         setShowCamera(false);
+        // Automatically navigate to loading screen after photo is taken
+        router.push('/(tabs)/loading-screen');
       } catch (error) {
         console.error('Error taking photo:', error);
       }
