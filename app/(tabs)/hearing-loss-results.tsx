@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
-import { EarWithWarning } from '@/components/icons/EarWithWarning';
+import { Image } from 'expo-image';
 import React, { useState } from 'react';
 
 export default function HearingLossResultsScreen() {
@@ -10,7 +10,10 @@ export default function HearingLossResultsScreen() {
       <View style={styles.content}>
         <Text style={styles.title}>Ernstige hoorverlies</Text>
         
-        <EarWithWarning size={100} color="#E31937" />
+        <Image
+          source={require('@/assets/severe.svg')}
+          style={styles.icon}
+        />
         
         <View style={styles.resultBox}>
           <Text style={styles.resultTitle}>Hearing Loss Assessment</Text>
@@ -69,6 +72,11 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     color: '#000',
     textAlign: 'center',
+  },
+  icon: {
+    width: 144,
+    height: 112,
+    marginBottom: 20,
   },
   resultBox: {
     backgroundColor: '#f5f5f5',
