@@ -15,7 +15,7 @@ export default function HomeScreen() {
       
       <Pressable 
         style={styles.button}
-        onPress={() => router.push('/upload-audiogram')}
+        onPress={() => router.push('/(tabs)/upload-audiogram')}
       >
         <Text style={styles.buttonText}>Get Started</Text>
       </Pressable>

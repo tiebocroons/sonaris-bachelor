@@ -7,13 +7,12 @@ export default function UploadAudiogramScreen() {
   const [image, setImage] = useState<string | null>(null);
 
   const handleTakePhoto = async () => {
-    // TODO: Implement camera functionality
     console.log('Take photo');
   };
 
   const handleContinue = () => {
     if (image) {
-      router.push('/scan-instructions');
+      router.push('/(tabs)/scan-instructions');
     }
   };
 

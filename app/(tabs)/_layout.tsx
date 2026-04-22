@@ -13,14 +13,47 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
+        headerShown: true,
         tabBarButton: HapticTab,
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
+          headerShown: false,
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="upload-audiogram"
+        options={{
+          title: 'Upload',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="arrow.up.circle.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="scan-instructions"
+        options={{
+          title: 'Scan',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="checkmark.circle.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="hearing-loss-results"
+        options={{
+          title: 'Results',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="doc.text.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="error-screen"
+        options={{
+          title: 'Error',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="exclamationmark.circle.fill" color={color} />,
         }}
       />
       <Tabs.Screen

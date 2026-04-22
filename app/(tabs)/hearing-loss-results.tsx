@@ -1,10 +1,9 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
 import { EarWithWarning } from '@/components/icons/EarWithWarning';
+import React, { useState } from 'react';
 
 export default function HearingLossResultsScreen() {
-  const router = useRouter();
-  const [showDetails, setShowDetails] = React.useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   return (
     <ScrollView style={styles.container}>
@@ -53,8 +52,6 @@ export default function HearingLossResultsScreen() {
     </ScrollView>
   );
 }
-
-import React from 'react';
 
 const styles = StyleSheet.create({
   container: {

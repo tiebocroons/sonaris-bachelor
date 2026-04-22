@@ -1,26 +1,30 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { EarWithAlert } from '@/components/icons/EarWithAlert';
+import { EarWithWaves } from '@/components/icons/EarWithWaves';
 
-export default function ErrorScreen() {
+export default function ScanInstructionsScreen() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <EarWithAlert size={120} color="#E31937" />
-        <Text style={styles.title}>Oops!</Text>
-        <Text style={styles.message}>
-          Er is iets fout gelopen,{'\n'}
-          probeer het nog eens opnieuw!
+        <EarWithWaves size={120} color="#E31937" />
+        <Text style={styles.title}>Scan Audiograms</Text>
+        <Text style={styles.description}>
+          Scan jou audiogrammen met onze app{'\n'}
+          en geef de beste resultaten{'\n'}
+          aan u patiënten.
         </Text>
+        <Pressable style={styles.infoLink}>
+          <Text style={styles.infoLinkText}>Meer info over de app</Text>
+        </Pressable>
       </View>
 
       <Pressable 
         style={styles.button}
-        onPress={() => router.push('/upload-audiogram')}
+        onPress={() => router.push('/(tabs)/hearing-loss-results')}
       >
-        <Text style={styles.buttonText}>Probeer opnieuw</Text>
+        <Text style={styles.buttonText}>Verdergaan</Text>
       </Pressable>
     </View>
   );
@@ -37,26 +41,34 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
-    marginTop: 80,
+    marginTop: 60,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     marginTop: 30,
-    color: '#E31937',
+    color: '#000',
     textAlign: 'center',
   },
-  message: {
-    fontSize: 16,
+  description: {
+    fontSize: 14,
     color: '#333',
     marginTop: 20,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 22,
+  },
+  infoLink: {
+    marginTop: 20,
+  },
+  infoLinkText: {
+    fontSize: 14,
+    color: '#E31937',
+    textDecorationLine: 'underline',
   },
   button: {
     backgroundColor: '#E31937',
     paddingVertical: 14,
-    paddingHorizontal: 50,
+    paddingHorizontal: 60,
     borderRadius: 25,
     marginBottom: 20,
   },
