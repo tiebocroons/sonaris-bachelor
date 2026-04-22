@@ -1,10 +1,7 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Ear } from '@/components/icons/Ear';
 
 export default function HomeScreen() {
-  const router = useRouter();
-
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -13,10 +10,7 @@ export default function HomeScreen() {
         <Text style={styles.subtitle}>Scan and analyze your audiograms</Text>
       </View>
       
-      <Pressable 
-        style={styles.button}
-        onPress={() => router.push('/(tabs)/upload-audiogram')}
-      >
+      <Pressable style={styles.button}>
         <Text style={styles.buttonText}>Get Started</Text>
       </Pressable>
     </View>

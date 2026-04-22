@@ -1,9 +1,7 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
 import { EarWithAlert } from '@/components/icons/EarWithAlert';
 
 export default function ErrorScreen() {
-  const router = useRouter();
 
   return (
     <View style={styles.container}>
@@ -16,10 +14,7 @@ export default function ErrorScreen() {
         </Text>
       </View>
 
-      <Pressable 
-        style={styles.button}
-        onPress={() => router.push('/(tabs)/upload-audiogram')}
-      >
+      <Pressable style={styles.button}>
         <Text style={styles.buttonText}>Probeer opnieuw</Text>
       </Pressable>
     </View>

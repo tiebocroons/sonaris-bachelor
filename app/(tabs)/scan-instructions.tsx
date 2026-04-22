@@ -1,14 +1,16 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
-import { EarWithWaves } from '@/components/icons/EarWithWaves';
+import { Image } from 'expo-image';
 
 export default function ScanInstructionsScreen() {
-  const router = useRouter();
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <EarWithWaves size={120} color="#E31937" />
+        <Image
+          source={require('@/assets/sonaris.svg')}
+          style={styles.logo}
+          contentFit="contain"
+        />
         <Text style={styles.title}>Scan Audiograms</Text>
         <Text style={styles.description}>
           Scan jou audiogrammen met onze app{'\n'}
@@ -20,10 +22,7 @@ export default function ScanInstructionsScreen() {
         </Pressable>
       </View>
 
-      <Pressable 
-        style={styles.button}
-        onPress={() => router.push('/(tabs)/hearing-loss-results')}
-      >
+      <Pressable style={styles.button}>
         <Text style={styles.buttonText}>Verdergaan</Text>
       </Pressable>
     </View>
@@ -42,6 +41,11 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
     marginTop: 60,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,

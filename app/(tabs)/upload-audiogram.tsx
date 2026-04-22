@@ -1,19 +1,11 @@
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
 export default function UploadAudiogramScreen() {
-  const router = useRouter();
   const [image, setImage] = useState<string | null>(null);
 
   const handleTakePhoto = async () => {
     console.log('Take photo');
-  };
-
-  const handleContinue = () => {
-    if (image) {
-      router.push('/(tabs)/scan-instructions');
-    }
   };
 
   return (
@@ -42,7 +34,6 @@ export default function UploadAudiogramScreen() {
 
       <Pressable 
         style={[styles.button, !image && styles.buttonDisabled]}
-        onPress={handleContinue}
         disabled={!image}
       >
         <Text style={styles.buttonText}>Volgende</Text>
