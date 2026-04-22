@@ -1,8 +1,10 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 
 export default function LoadingScreen() {
+  const router = useRouter();
   const [visibleDots, setVisibleDots] = useState(0);
 
   useEffect(() => {
@@ -12,6 +14,14 @@ export default function LoadingScreen() {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      router.push('/(tabs)/hearing-loss-results');
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [router]);
 
   const getDotOpacity = (dotIndex: number) => {
     if (visibleDots >= dotIndex && visibleDots < 3) {
