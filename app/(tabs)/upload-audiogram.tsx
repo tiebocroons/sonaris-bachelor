@@ -1,13 +1,40 @@
-import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as MediaLibrary from 'expo-media-library';
 
 export default function UploadAudiogramScreen() {
   const router = useRouter();
   const [image, setImage] = useState<string | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
+  const cameraRef = useRef<CameraView>(null);
+
+  useEffect(() => {
+    if (!permission?.granted) {
+      requestPermission();
+    }
+    if (!mediaPermission?.granted) {
+      requestMediaPermission();
+    }
+  }, []);
 
   const handleTakePhoto = async () => {
-    console.log('Take photo');
+    if (permission?.granted && cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync({
+          quality: 0.8,
+          base64: true,
+        });
+        setImage(photo.uri);
+        setShowCamera(false);
+      } catch (error) {
+        console.error('Error taking photo:', error);
+      }
+    }
   };
 
   const handleContinue = () => {
@@ -15,6 +42,30 @@ export default function UploadAudiogramScreen() {
       router.push('/(tabs)/scan-instructions');
     }
   };
+
+  if (showCamera && permission?.granted) {
+    return (
+      <View style={styles.cameraContainer}>
+        <CameraView style={styles.camera} ref={cameraRef} facing="back">
+          <View style={styles.cameraControls}>
+            <Pressable 
+              style={styles.cancelButton}
+              onPress={() => setShowCamera(false)}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </Pressable>
+            <Pressable 
+              style={styles.captureButton}
+              onPress={handleTakePhoto}
+            >
+              <View style={styles.captureButtonInner} />
+            </Pressable>
+            <View style={styles.spacer} />
+          </View>
+        </CameraView>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -33,15 +84,30 @@ export default function UploadAudiogramScreen() {
         )}
       </View>
 
+      {image && (
+        <Pressable 
+          style={styles.changeButton}
+          onPress={() => setImage(null)}
+        >
+          <Text style={styles.changeButtonText}>Andere foto</Text>
+        </Pressable>
+      )}
+
       <Pressable 
         style={styles.button}
-        onPress={handleTakePhoto}
+        onPress={() => {
+          if (permission?.granted) {
+            setShowCamera(true);
+          } else {
+            requestPermission();
+          }
+        }}
       >
         <Text style={styles.buttonText}>Neem foto</Text>
       </Pressable>
 
       <Pressable 
-        style={[styles.button, !image && styles.buttonDisabled]}
+        style={[styles.button, !image && styles.changeButton]}
         onPress={handleContinue}
         disabled={!image}
       >
@@ -93,6 +159,65 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 8,
+  },
+  cameraContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  camera: {
+    flex: 1,
+  },
+  cameraControls: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+  },
+  cancelButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 20,
+  },
+  cancelButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  captureButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+  captureButtonInner: {
+    width: 55,
+    height: 55,
+    borderRadius: 27.5,
+    backgroundColor: '#fff',
+  },
+  spacer: {
+    width: 70,
+  },
+  changeButton: {
+    backgroundColor: '#f5f5f5',
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#E31937',
+  },
+  changeButtonText: {
+    color: '#E31937',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   button: {
     backgroundColor: '#E31937',
