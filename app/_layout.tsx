@@ -16,6 +16,11 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="home" options={{ title: 'Home', headerShown: true }} />
+        <Stack.Screen name="upload-audiogram" options={{ title: 'Upload Audiogram', headerShown: true }} />
+        <Stack.Screen name="scan-instructions" options={{ title: 'Scan Instructions', headerShown: true }} />
+        <Stack.Screen name="error-screen" options={{ title: 'Error', headerShown: true }} />
+        <Stack.Screen name="hearing-loss-results" options={{ title: 'Results', headerShown: true }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />
