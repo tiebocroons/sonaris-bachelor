@@ -1,12 +1,14 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { EarWithAlert } from '@/components/icons/EarWithAlert';
+import { useRouter } from 'expo-router';
+import { Error } from '@/components/icons/Error';
 
 export default function ErrorScreen() {
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <EarWithAlert size={120} color="#E31937" />
+        <Error size={200} />
         <Text style={styles.title}>Oops!</Text>
         <Text style={styles.message}>
           Er is iets fout gelopen,{'\n'}
@@ -14,7 +16,7 @@ export default function ErrorScreen() {
         </Text>
       </View>
 
-      <Pressable style={styles.button}>
+      <Pressable style={styles.button} onPress={() => router.push('/')}>
         <Text style={styles.buttonText}>Probeer opnieuw</Text>
       </Pressable>
     </View>

@@ -1,30 +1,65 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Image } from 'expo-image';
+import { Camera } from '@/components/icons/Camera';
+import { ConvertShape } from '@/components/icons/ConvertShape';
+import { useState } from 'react';
 
 export default function ScanInstructionsScreen() {
   const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(0);
+  const totalSteps = 4;
+
+  const steps = [
+    {
+      icon: <Camera size={120} />,
+      text: 'Maak met uw\nsmartphonecamera een\nfoto van een bestaand\nanalog of digitaal\naudiogram.\nZorg voor voldoende licht\nen een volledig zicht op de\nmeetwaarden.\nDe app herkent\nautomatisch de relevante\naudiometrische gegevens.',
+    },
+    {
+      icon: <ConvertShape size={120} />,
+      text: 'De gescande\n audiogramwaarden worden automatisch omgezet\n naar gestructureerde digitale\n data.\nManuele invoer\n is niet nodig.\nDit bespaart tijd\n en vermindert interpretatiefouten.',
+    },
+    {
+      icon: <Camera size={120} />,
+      text: 'Stap 3 tekst hier.',
+    },
+    {
+      icon: <Camera size={120} />,
+      text: 'Stap 4 tekst hier.',
+    },
+  ];
+
+  const handleNext = () => {
+    if (currentStep < totalSteps - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      router.push('/upload-audiogram');
+    }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Image
-          source={require('@/assets/sonaris.svg')}
-          style={styles.logo}
-          contentFit="contain"
-        />
-        <Text style={styles.title}>Scan Audiograms</Text>
-        <Text style={styles.description}>
-          Scan jou audiogrammen met onze app{'\n'}
-          en geef de beste resultaten{'\n'}
-          aan u patiënten.
-        </Text>
-        <Pressable style={styles.infoLink}>
-          <Text style={styles.infoLinkText}>Meer info over de app</Text>
-        </Pressable>
+        <View style={styles.instructionBox}>
+          {steps[currentStep].icon}
+          <Text style={styles.instruction}>
+            {steps[currentStep].text}
+          </Text>
+        </View>
+
+        <View style={styles.dotsContainer}>
+          {[...Array(totalSteps)].map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.dot,
+                { backgroundColor: index === currentStep ? '#E31937' : '#CCCCCC' },
+              ]}
+            />
+          ))}
+        </View>
       </View>
 
-      <Pressable style={styles.button}>
+      <Pressable style={styles.button} onPress={handleNext}>
         <Text style={styles.buttonText}>Verdergaan</Text>
       </Pressable>
     </View>
@@ -37,50 +72,52 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 60,
+    paddingVertical: 40,
     paddingHorizontal: 20,
   },
   content: {
     alignItems: 'center',
-    marginTop: 60,
+    flex: 1,
+    justifyContent: 'center',
   },
-  logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 20,
+  instructionBox: {
+    borderWidth: 2,
+    borderColor: '#CCC',
+    borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
+    marginBottom: 30,
+    backgroundColor: '#FFF',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 30,
+  instruction: {
+    fontSize: 16,
     color: '#000',
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: 14,
-    color: '#333',
     marginTop: 20,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,
+    fontWeight: '500',
   },
-  infoLink: {
-    marginTop: 20,
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
   },
-  infoLinkText: {
-    fontSize: 14,
-    color: '#E31937',
-    textDecorationLine: 'underline',
+  dot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
   },
   button: {
     backgroundColor: '#E31937',
-    paddingVertical: 14,
-    paddingHorizontal: 60,
-    borderRadius: 25,
+    paddingVertical: 16,
+    paddingHorizontal: 80,
+    borderRadius: 30,
     marginBottom: 20,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
   },

@@ -3,6 +3,7 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function UploadAudiogramScreen() {
   const router = useRouter();
@@ -15,7 +16,29 @@ export default function UploadAudiogramScreen() {
     if (!permission?.granted) {
       requestPermission();
     }
-  }, []);
+  }, [permission, requestPermission]);
+
+  const handlePickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+        // Navigate to loading screen with photo URI
+        router.push({
+          pathname: '/(tabs)/loading-screen',
+          params: { photoUri: result.assets[0].uri }
+        });
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      alert('Failed to pick image');
+    }
+  };
 
   const handleTakePhoto = async () => {
     if (permission?.granted && cameraRef.current) {
@@ -34,12 +57,6 @@ export default function UploadAudiogramScreen() {
       } catch (error) {
         console.error('Error taking photo:', error);
       }
-    }
-  };
-
-  const handleContinue = () => {
-    if (image) {
-      router.push('/(tabs)/scan-instructions');
     }
   };
 
@@ -107,11 +124,10 @@ export default function UploadAudiogramScreen() {
       </Pressable>
 
       <Pressable 
-        style={[styles.button, !image && styles.changeButton]}
-        onPress={handleContinue}
-        disabled={!image}
+        style={styles.button}
+        onPress={handlePickImage}
       >
-        <Text style={styles.buttonText}>Volgende</Text>
+        <Text style={styles.buttonText}>Upload van opslag</Text>
       </Pressable>
     </View>
   );

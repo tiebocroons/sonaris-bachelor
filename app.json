@@ -44,6 +44,12 @@
         {
           "cameraPermission": "Allow Sonaris to access your camera to capture audiogram photos."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Sonaris to access your photos to upload audiogram images."
+        }
       ]
     ],
     "experiments": {
