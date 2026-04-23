@@ -5,7 +5,7 @@ interface CameraProps {
   color?: string;
 }
 
-export function Camera({ size = 180, color = '#D8D8D8' }: CameraProps) {
+export function Camera({ size = 200, color = '#D8D8D8' }: CameraProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 180 180" fill="none">
       <Path

@@ -5,7 +5,7 @@ interface ConvertShapeProps {
   color?: string;
 }
 
-export function ConvertShape({ size = 180, color = '#DADADA' }: ConvertShapeProps) {
+export function ConvertShape({ size = 200, color = '#D8D8D8' }: ConvertShapeProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 180 180" fill="none">
       <Path

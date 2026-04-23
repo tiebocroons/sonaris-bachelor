@@ -141,10 +141,10 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 30,
-    color: '#000',
+    color: '#E31937',
     textAlign: 'center',
   },
   photoBox: {
@@ -166,10 +166,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   placeholderText: {
-    fontSize: 14,
-    color: '#999',
+    fontSize: 16,
+    color: '#333',
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 24,
   },
   image: {
     width: '100%',
@@ -238,6 +238,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: '#E31937',
     paddingVertical: 14,
+    paddingHorizontal: 50,
     borderRadius: 25,
     marginBottom: 15,
   },

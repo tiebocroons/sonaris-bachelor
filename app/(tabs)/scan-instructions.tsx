@@ -11,19 +11,19 @@ export default function ScanInstructionsScreen() {
 
   const steps = [
     {
-      icon: <Camera size={120} />,
+      icon: <Camera size={200} />,
       text: 'Maak met uw\nsmartphonecamera een\nfoto van een bestaand\nanalog of digitaal\naudiogram.\nZorg voor voldoende licht\nen een volledig zicht op de\nmeetwaarden.\nDe app herkent\nautomatisch de relevante\naudiometrische gegevens.',
     },
     {
-      icon: <ConvertShape size={120} />,
+      icon: <ConvertShape size={200} />,
       text: 'De gescande\n audiogramwaarden worden automatisch omgezet\n naar gestructureerde digitale\n data.\nManuele invoer\n is niet nodig.\nDit bespaart tijd\n en vermindert interpretatiefouten.',
     },
     {
-      icon: <Camera size={120} />,
+      icon: <Camera size={200} />,
       text: 'Stap 3 tekst hier.',
     },
     {
-      icon: <Camera size={120} />,
+      icon: <Camera size={200} />,
       text: 'Stap 4 tekst hier.',
     },
   ];
@@ -91,11 +91,10 @@ const styles = StyleSheet.create({
   },
   instruction: {
     fontSize: 16,
-    color: '#000',
+    color: '#333',
     marginTop: 20,
     textAlign: 'center',
     lineHeight: 24,
-    fontWeight: '500',
   },
   dotsContainer: {
     flexDirection: 'row',
@@ -110,14 +109,14 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#E31937',
-    paddingVertical: 16,
-    paddingHorizontal: 80,
-    borderRadius: 30,
+    paddingVertical: 14,
+    paddingHorizontal: 50,
+    borderRadius: 25,
     marginBottom: 20,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
   },
