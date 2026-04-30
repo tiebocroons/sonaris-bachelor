@@ -28,7 +28,6 @@ export default function UploadAudiogramScreen() {
 
       if (!result.canceled) {
         setImage(result.assets[0].uri);
-        // Navigate to loading screen with photo URI
         router.push({
           pathname: '/(tabs)/loading-screen',
           params: { photoUri: result.assets[0].uri }
@@ -49,7 +48,6 @@ export default function UploadAudiogramScreen() {
         });
         setImage(photo.uri);
         setShowCamera(false);
-        // Navigate to loading screen with photo URI
         router.push({
           pathname: '/(tabs)/loading-screen',
           params: { photoUri: photo.uri }
@@ -69,7 +67,7 @@ export default function UploadAudiogramScreen() {
               style={styles.cancelButton}
               onPress={() => setShowCamera(false)}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text style={styles.cancelButtonText}>Annuleren</Text>
             </Pressable>
             <Pressable 
               style={styles.captureButton}
@@ -86,49 +84,53 @@ export default function UploadAudiogramScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Upload Audiogram</Text>
-      
-      <View style={styles.photoBox}>
-        {image ? (
-          <Image source={{ uri: image }} style={styles.image} />
-        ) : (
-          <View style={styles.placeholderContent}>
-            <Text style={styles.placeholderIcon}>🖼️</Text>
-            <Text style={styles.placeholderText}>
-              Neem een foto van de audiogram{'\n'}png, webpp en jpg toegelaten
-            </Text>
-          </View>
+      <View style={styles.content}>
+        <Text style={styles.title}>Upload Audiogram</Text>
+        
+        <View style={styles.photoBox}>
+          {image ? (
+            <Image source={{ uri: image }} style={styles.image} />
+          ) : (
+            <View style={styles.placeholderContent}>
+              <Text style={styles.placeholderIcon}>🖼️</Text>
+              <Text style={styles.placeholderText}>
+                Neem een foto van de audiogram{'\n'}PNG, WebP en JPG toegelaten
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {image && (
+          <Pressable 
+            style={styles.changeButton}
+            onPress={() => setImage(null)}
+          >
+            <Text style={styles.changeButtonText}>Andere foto</Text>
+          </Pressable>
         )}
       </View>
 
-      {image && (
+      <View style={styles.buttonContainer}>
         <Pressable 
-          style={styles.changeButton}
-          onPress={() => setImage(null)}
+          style={styles.button}
+          onPress={() => {
+            if (permission?.granted) {
+              setShowCamera(true);
+            } else {
+              requestPermission();
+            }
+          }}
         >
-          <Text style={styles.changeButtonText}>Andere foto</Text>
+          <Text style={styles.buttonText}>📷 Neem foto</Text>
         </Pressable>
-      )}
 
-      <Pressable 
-        style={styles.button}
-        onPress={() => {
-          if (permission?.granted) {
-            setShowCamera(true);
-          } else {
-            requestPermission();
-          }
-        }}
-      >
-        <Text style={styles.buttonText}>Neem foto</Text>
-      </Pressable>
-
-      <Pressable 
-        style={styles.button}
-        onPress={handlePickImage}
-      >
-        <Text style={styles.buttonText}>Upload van opslag</Text>
-      </Pressable>
+        <Pressable 
+          style={styles.button}
+          onPress={handlePickImage}
+        >
+          <Text style={styles.buttonText}>📁 Upload van opslag</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -137,8 +139,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 40,
     paddingHorizontal: 20,
-    paddingVertical: 30,
+  },
+  content: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    width: '100%',
   },
   title: {
     fontSize: 28,
@@ -149,32 +159,33 @@ const styles = StyleSheet.create({
   },
   photoBox: {
     borderWidth: 2,
-    borderStyle: 'dashed',
     borderColor: '#ccc',
-    borderRadius: 12,
-    padding: 30,
-    marginBottom: 40,
-    minHeight: 300,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 30,
+    minHeight: 280,
+    width: 250,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f9f9f9',
   },
   placeholderContent: {
     alignItems: 'center',
   },
   placeholderIcon: {
-    fontSize: 48,
-    marginBottom: 10,
+    fontSize: 56,
+    marginBottom: 12,
   },
   placeholderText: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: 20,
+    color: '#666',
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 20,
   },
   image: {
     width: '100%',
     height: '100%',
-    borderRadius: 8,
+    borderRadius: 12,
   },
   cameraContainer: {
     flex: 1,
@@ -224,26 +235,29 @@ const styles = StyleSheet.create({
   changeButton: {
     backgroundColor: '#f5f5f5',
     paddingVertical: 10,
+    paddingHorizontal: 30,
     borderRadius: 20,
-    marginBottom: 15,
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: '#E31937',
   },
   changeButtonText: {
     color: '#E31937',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  buttonContainer: {
+    width: '100%',
+    gap: 12,
+    alignItems: 'center',
   },
   button: {
     backgroundColor: '#E31937',
     paddingVertical: 14,
-    paddingHorizontal: 50,
+    paddingHorizontal: 20,
     borderRadius: 25,
-    marginBottom: 15,
-  },
-  buttonDisabled: {
-    backgroundColor: '#ccc',
+    width: 225,
   },
   buttonText: {
     color: '#fff',

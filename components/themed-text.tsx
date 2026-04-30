@@ -5,7 +5,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link' | 'display' | 'h2' | 'h3' | 'h4' | 'body';
 };
 
 export function ThemedText({
@@ -26,6 +26,11 @@ export function ThemedText({
         type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
         type === 'subtitle' ? styles.subtitle : undefined,
         type === 'link' ? styles.link : undefined,
+        type === 'display' ? styles.display : undefined,
+        type === 'h2' ? styles.h2 : undefined,
+        type === 'h3' ? styles.h3 : undefined,
+        type === 'h4' ? styles.h4 : undefined,
+        type === 'body' ? styles.body : undefined,
         style,
       ]}
       {...rest}
@@ -56,5 +61,29 @@ const styles = StyleSheet.create({
     lineHeight: 30,
     fontSize: 16,
     color: '#0a7ea4',
+  },
+  display: {
+    fontSize: 96,
+    lineHeight: 96,
+    fontWeight: 'bold',
+  },
+  h2: {
+    fontSize: 36,
+    lineHeight: 36,
+    fontWeight: 'bold',
+  },
+  h3: {
+    fontSize: 36,
+    lineHeight: 36,
+    fontWeight: 'bold',
+  },
+  h4: {
+    fontSize: 20,
+    lineHeight: 20,
+    fontWeight: 'bold',
+  },
+  body: {
+    fontSize: 20,
+    lineHeight: 20,
   },
 });

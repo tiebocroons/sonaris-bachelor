@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingVertical: 30,
+    paddingVertical: 40,
   },
   content: {
     alignItems: 'center',
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 0,
   },
   resultText: {
-    fontSize: 14,
+    fontSize: 20,
     color: '#333',
     lineHeight: 20,
   },
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     marginVertical: 15,
   },
   readMoreText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#E31937',
     fontWeight: '600',
     textDecorationLine: 'underline',
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
   },
   detailsText: {
-    fontSize: 14,
+    fontSize: 20,
     color: '#333',
     marginBottom: 12,
     lineHeight: 20,
@@ -111,11 +111,14 @@ const styles = StyleSheet.create({
   buttonContainer: {
     paddingHorizontal: 20,
     paddingVertical: 20,
+    width: '100%',
+    alignItems: 'center',
   },
   pdfButton: {
     backgroundColor: '#E31937',
     paddingVertical: 14,
     borderRadius: 25,
+    width: 225,
   },
   pdfButtonText: {
     color: '#fff',

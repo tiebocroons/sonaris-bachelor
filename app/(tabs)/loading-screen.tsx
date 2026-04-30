@@ -126,6 +126,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 40,
     paddingHorizontal: 20,
   },
   svg: {
