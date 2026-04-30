@@ -13,6 +13,7 @@ export default function HearingLossResultsScreen() {
         <Image
           source={require('@/assets/severe.svg')}
           style={styles.icon}
+          contentFit="contain"
         />
         
         <View style={styles.resultBox}>
@@ -20,14 +21,6 @@ export default function HearingLossResultsScreen() {
             Binnen verschillende richtlijnen worden voor dit profiel aanvullende klinische parameters meegenomen bij de evaluatie.
           </Text>
         </View>
-
-        <Pressable 
-          style={styles.readMoreButton}
-          onPress={() => setShowDetails(!showDetails)}
-        >
-          <Text style={styles.readMoreText}>Read More</Text>
-        </Pressable>
-
         {showDetails && (
           <View style={styles.detailsBox}>
             <Text style={styles.detailsText}>
@@ -41,6 +34,14 @@ export default function HearingLossResultsScreen() {
             </Text>
           </View>
         )}
+        <Pressable 
+          style={styles.readMoreButton}
+          onPress={() => setShowDetails(!showDetails)}
+        >
+          <Text style={styles.readMoreText}>Read More</Text>
+        </Pressable>
+
+        
       </View>
 
       <View style={styles.buttonContainer}>
@@ -61,6 +62,7 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
     paddingHorizontal: 20,
+    paddingVertical: 20,
   },
   title: {
     fontSize: 24,
@@ -70,9 +72,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   icon: {
-    width: 144,
-    height: 112,
-    marginBottom: 20,
+    width: 200,
+    height: 200,
+    marginBottom: 30,
   },
   resultBox: {
     backgroundColor: '#fff',
@@ -80,11 +82,13 @@ const styles = StyleSheet.create({
     padding: 20,
     marginVertical: 20,
     borderLeftWidth: 0,
+    maxWidth: 250,
   },
   resultText: {
     fontSize: 20,
     color: '#333',
     lineHeight: 20,
+    maxWidth: 250,
   },
   readMoreButton: {
     marginVertical: 15,
@@ -98,9 +102,10 @@ const styles = StyleSheet.create({
   detailsBox: {
     backgroundColor: '#fff',
     borderRadius: 8,
-    padding: 0,
+    padding: 20,
     marginTop: 0,
     borderWidth: 0,
+    maxWidth: 250,
   },
   detailsText: {
     fontSize: 20,
