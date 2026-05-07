@@ -31,9 +31,24 @@ app.post('/api/scan-audiogram', async (req, res) => {
       }
     );
 
-    // Parse response
-    const responseData = await n8nResponse.json();
-    console.log('N8N response:', responseData);
+    // Log response status
+    console.log('N8N response status:', n8nResponse.status);
+    console.log('N8N response headers:', n8nResponse.headers.raw());
+
+    // Get raw response text first
+    const responseText = await n8nResponse.text();
+    console.log('N8N raw response:', responseText);
+
+    // Try to parse as JSON
+    let responseData;
+    try {
+      responseData = responseText ? JSON.parse(responseText) : {};
+    } catch (parseError) {
+      console.error('Failed to parse JSON:', parseError.message);
+      responseData = { rawResponse: responseText };
+    }
+
+    console.log('N8N parsed response:', responseData);
 
     // Forward N8N response back to frontend
     if (n8nResponse.ok) {

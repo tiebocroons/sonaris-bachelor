@@ -16,8 +16,6 @@ export default function LoadingScreen() {
   const params = useLocalSearchParams<{ photoUri: string }>();
   const [visibleDots, setVisibleDots] = useState(0);
 
-  console.log('LoadingScreen mounted, params:', params);
-
   useEffect(() => {
     const interval = setInterval(() => {
       setVisibleDots((prev) => (prev + 1) % 6);
@@ -27,7 +25,6 @@ export default function LoadingScreen() {
   }, []);
 
   useEffect(() => {
-    console.log('Params updated:', params);
   }, [params]);
 
   useEffect(() => {
@@ -37,10 +34,7 @@ export default function LoadingScreen() {
           throw new Error('No photo provided');
         }
 
-        console.log('Starting scan with URI:', params.photoUri);
-
         // Step 0: Compress image to reduce file size
-        console.log('Compressing image...');
         let imagePath = params.photoUri;
         
         // Manipulate image to reduce file size while maintaining quality
@@ -48,32 +42,27 @@ export default function LoadingScreen() {
         const manipulatedImage = await ImageManipulator.manipulateAsync(
           params.photoUri,
           [{ resize: { width: 2400, height: 2400 } }], // Resize to max 2400x2400
-          { compress: 0.7, format: 'jpeg' } // JPEG format with 70% compression
+          { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG } // JPEG format with 70% compression
         );
         
         imagePath = manipulatedImage.uri;
-        console.log('Image compressed, new URI:', imagePath);
 
         // Step 1: Upload image to Cloudinary
-        console.log('Uploading image to Cloudinary...');
         
         // Fetch the blob from the URL
         const blobResponse = await fetch(imagePath);
         const blob = await blobResponse.blob();
-        console.log('Blob size:', blob.size, 'type:', blob.type);
         
         // If still too large, compress more aggressively
         if (blob.size > 10000000) {
-          console.log('Blob still too large, compressing further...');
           const furtherCompressed = await ImageManipulator.manipulateAsync(
             imagePath,
             [{ resize: { width: 1600, height: 1600 } }],
-            { compress: 0.5, format: 'jpeg' }
+            { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
           );
           
           const compressedResponse = await fetch(furtherCompressed.uri);
           const compressedBlob = await compressedResponse.blob();
-          console.log('Further compressed blob size:', compressedBlob.size);
           
           const formData = new FormData();
           formData.append('file', compressedBlob, 'audiogram.jpg');
@@ -89,16 +78,13 @@ export default function LoadingScreen() {
 
           if (!cloudinaryResponse.ok) {
             const errorText = await cloudinaryResponse.text();
-            console.log('Cloudinary error response:', errorText);
             throw new Error(`Cloudinary upload failed: ${cloudinaryResponse.status}`);
           }
 
           const cloudinaryData = await cloudinaryResponse.json();
           const imageUrl = cloudinaryData.secure_url;
-          console.log('Image uploaded to Cloudinary:', imageUrl);
 
           // Step 2: Send URL to N8N
-          console.log('Sending image URL to N8N...');
           const response = await fetch(BACKEND_URL, {
             method: 'POST',
             headers: {
@@ -110,14 +96,11 @@ export default function LoadingScreen() {
             }),
           });
 
-          console.log('Response status:', response.status);
-
           if (!response.ok) {
             throw new Error(`Server error: ${response.status}`);
           }
 
           const result = await response.json();
-          console.log('Result:', result);
 
           // Check if scanning was successful
           if (result.success) {
@@ -145,16 +128,13 @@ export default function LoadingScreen() {
 
           if (!cloudinaryResponse.ok) {
             const errorText = await cloudinaryResponse.text();
-            console.log('Cloudinary error response:', errorText);
             throw new Error(`Cloudinary upload failed: ${cloudinaryResponse.status}`);
           }
 
           const cloudinaryData = await cloudinaryResponse.json();
           const imageUrl = cloudinaryData.secure_url;
-          console.log('Image uploaded to Cloudinary:', imageUrl);
 
           // Step 2: Send URL to N8N
-          console.log('Sending image URL to N8N...');
           const response = await fetch(BACKEND_URL, {
             method: 'POST',
             headers: {
@@ -166,14 +146,11 @@ export default function LoadingScreen() {
             }),
           });
 
-          console.log('Response status:', response.status);
-
           if (!response.ok) {
             throw new Error(`Server error: ${response.status}`);
           }
 
           const result = await response.json();
-          console.log('Result:', result);
 
           // Check if scanning was successful
           if (result.success) {
@@ -186,8 +163,7 @@ export default function LoadingScreen() {
             throw new Error(result.error || 'Could not scan audiogram');
           }
         }
-      } catch (error) {
-        console.error('Error scanning audiogram:', error);
+      } catch (_error) {
         // Navigate to error screen on failure
         router.push('/(tabs)/error-screen');
       }
@@ -196,7 +172,7 @@ export default function LoadingScreen() {
     // Start scanning after a short delay
     const timer = setTimeout(scanAudiogramPhoto, 1000);
     return () => clearTimeout(timer);
-  }, [params.photoUri, router, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET]);
+  }, [params.photoUri, router]);
 
   const getDotOpacity = (dotIndex: number) => {
     if (visibleDots >= dotIndex && visibleDots < 3) {
