@@ -151,8 +151,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 36,
+    fontFamily: 'AnekTamil_700Bold',
     marginBottom: 30,
     color: '#E31937',
     textAlign: 'center',

@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 36,
+    fontFamily: 'AnekTamil_700Bold',
     marginTop: 30,
     marginBottom: 15,
     color: '#E31937',

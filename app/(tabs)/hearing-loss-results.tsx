@@ -204,8 +204,8 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 36,
+    fontFamily: 'AnekTamil_700Bold',
     marginBottom: 30,
     color: '#000',
     textAlign: 'center',
@@ -258,7 +258,8 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   detailsLabel: {
-    fontWeight: '600',
+    fontFamily: 'AnekTamil_700Bold',
+    fontSize: 20,
     color: '#E31937',
   },
   thresholdsBox: {
