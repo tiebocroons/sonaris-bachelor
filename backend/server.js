@@ -109,14 +109,18 @@ app.post('/api/scan-audiogram', async (req, res) => {
           if (!analysisData) {
             console.warn('JSON repair failed, extracting fields via regex');
             const boolMatch = jsonText.match(/"hearingLossDetected"\s*:\s*(true|false)/);
-            const summaryMatch = jsonText.match(/"summary"\s*:\s*"([^"]*)"/);
+            const summaryMatch = jsonText.match(/"summary"\s*:\s*"((?:[^"\\]|\\.)*)"/);
             const severityMatch = jsonText.match(/"severity"\s*:\s*"([^"]*)"/);
-            const freqMatch = jsonText.match(/"affectedFrequencies"\s*:\s*(\[[^\]]*\])/);
+            const explanationMatch = jsonText.match(/"explanation"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+            const whyMatch = jsonText.match(/"whyHearingLoss"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+            const howMatch = jsonText.match(/"howAnalysis"\s*:\s*"((?:[^"\\]|\\.)*)"/);
             analysisData = {
               hearingLossDetected: boolMatch ? boolMatch[1] === 'true' : null,
-              summary: summaryMatch ? summaryMatch[1] : 'Analysis available but response was truncated.',
+              summary: summaryMatch ? summaryMatch[1] : 'Analyse beschikbaar maar antwoord was afgekapt.',
               severity: severityMatch ? severityMatch[1] : 'unknown',
-              affectedFrequencies: freqMatch ? JSON.parse(freqMatch[1]) : [],
+              ...(explanationMatch ? { explanation: explanationMatch[1] } : {}),
+              ...(whyMatch ? { whyHearingLoss: whyMatch[1] } : {}),
+              ...(howMatch ? { howAnalysis: howMatch[1] } : {}),
             };
           }
         }

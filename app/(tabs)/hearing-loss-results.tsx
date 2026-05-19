@@ -121,7 +121,13 @@ export default function HearingLossResultsScreen() {
             {/* Fallback: show any extra fields the AI returned that aren't displayed above */}
             {(() => {
               const knownKeys = new Set(['hearingLossDetected', 'severity', 'summary', 'explanation', 'whyHearingLoss', 'howAnalysis', 'thresholds', 'recommendations']);
-              const extraEntries = Object.entries(analysis).filter(([k]) => !knownKeys.has(k));
+              const extraEntries = Object.entries(analysis).filter(([k, v]) => {
+                if (knownKeys.has(k)) return false;
+                if (v === null || v === undefined) return false;
+                if (Array.isArray(v) && v.length === 0) return false;
+                if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v as object).length === 0) return false;
+                return true;
+              });
               if (extraEntries.length === 0) return null;
               return (
                 <View>
