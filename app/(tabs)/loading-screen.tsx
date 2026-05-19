@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 import * as ImageManipulator from 'expo-image-manipulator';
+import { setAnalysis } from '@/constants/analysis-store';
 
 // Backend proxy URL (replace 127.0.0.1 with your machine IP for mobile testing)
 const BACKEND_URL = 'http://localhost:3000/api/scan-audiogram';
@@ -34,27 +35,26 @@ export default function LoadingScreen() {
           throw new Error('No photo provided');
         }
 
-        // Step 0: Compress image to reduce file size
+        // Step 0: Compress image to reduce file size (skip on web — blob URLs not supported by manipulator)
         let imagePath = params.photoUri;
-        
-        // Manipulate image to reduce file size while maintaining quality
-        // Resize to 80% of original dimensions and compress
-        const manipulatedImage = await ImageManipulator.manipulateAsync(
-          params.photoUri,
-          [{ resize: { width: 2400, height: 2400 } }], // Resize to max 2400x2400
-          { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG } // JPEG format with 70% compression
-        );
-        
-        imagePath = manipulatedImage.uri;
+
+        if (Platform.OS !== 'web') {
+          const manipulatedImage = await ImageManipulator.manipulateAsync(
+            params.photoUri,
+            [{ resize: { width: 2400, height: 2400 } }],
+            { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+          );
+          imagePath = manipulatedImage.uri;
+        }
 
         // Step 1: Upload image to Cloudinary
         
         // Fetch the blob from the URL
         const blobResponse = await fetch(imagePath);
-        const blob = await blobResponse.blob();
+        let blob = await blobResponse.blob();
         
-        // If still too large, compress more aggressively
-        if (blob.size > 10000000) {
+        // If still too large, compress more aggressively (native only — manipulator not supported on web)
+        if (blob.size > 10000000 && Platform.OS !== 'web') {
           const furtherCompressed = await ImageManipulator.manipulateAsync(
             imagePath,
             [{ resize: { width: 1600, height: 1600 } }],
@@ -62,110 +62,61 @@ export default function LoadingScreen() {
           );
           
           const compressedResponse = await fetch(furtherCompressed.uri);
-          const compressedBlob = await compressedResponse.blob();
-          
-          const formData = new FormData();
-          formData.append('file', compressedBlob, 'audiogram.jpg');
-          formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+          blob = await compressedResponse.blob();
+        }
 
-          const cloudinaryResponse = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-            {
-              method: 'POST',
-              body: formData,
-            }
-          );
+        const formData = new FormData();
+        formData.append('file', blob, 'audiogram.jpg');
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
 
-          if (!cloudinaryResponse.ok) {
-            const errorText = await cloudinaryResponse.text();
-            throw new Error(`Cloudinary upload failed: ${cloudinaryResponse.status}`);
-          }
-
-          const cloudinaryData = await cloudinaryResponse.json();
-          const imageUrl = cloudinaryData.secure_url;
-
-          // Step 2: Send URL to N8N
-          const response = await fetch(BACKEND_URL, {
+        const cloudinaryResponse = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+          {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              imageUrl: imageUrl,
-              fileName: 'audiogram.jpg',
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
+            body: formData,
           }
+        );
 
-          const result = await response.json();
+        if (!cloudinaryResponse.ok) {
+          throw new Error(`Cloudinary upload failed: ${cloudinaryResponse.status}`);
+        }
 
-          // Check if scanning was successful
-          if (result.success) {
-            // Navigate to results screen after 5 seconds
-            setTimeout(() => {
-              router.push('/(tabs)/hearing-loss-results');
-            }, 5000);
-          } else {
-            // Navigate to error screen if audiogram couldn't be read
-            throw new Error(result.error || 'Could not scan audiogram');
-          }
+        const cloudinaryData = await cloudinaryResponse.json();
+        const imageUrl = cloudinaryData.secure_url;
+
+        // Step 2: Send URL to backend
+        const response = await fetch(BACKEND_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageUrl: imageUrl,
+            fileName: 'audiogram.jpg',
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Scan result:', JSON.stringify(result).substring(0, 300));
+
+        if (result.success) {
+          setAnalysis(result.analysis);
+          router.push('/(tabs)/hearing-loss-results');
         } else {
-          // Normal upload if blob is within size limit
-          const formData = new FormData();
-          formData.append('file', blob, 'audiogram.jpg');
-          formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
-          const cloudinaryResponse = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-            {
-              method: 'POST',
-              body: formData,
-            }
-          );
-
-          if (!cloudinaryResponse.ok) {
-            const errorText = await cloudinaryResponse.text();
-            throw new Error(`Cloudinary upload failed: ${cloudinaryResponse.status}`);
-          }
-
-          const cloudinaryData = await cloudinaryResponse.json();
-          const imageUrl = cloudinaryData.secure_url;
-
-          // Step 2: Send URL to N8N
-          const response = await fetch(BACKEND_URL, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              imageUrl: imageUrl,
-              fileName: 'audiogram.jpg',
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
-          }
-
-          const result = await response.json();
-
-          // Check if scanning was successful
-          if (result.success) {
-            // Navigate to results screen after 5 seconds
-            setTimeout(() => {
-              router.push('/(tabs)/hearing-loss-results');
-            }, 5000);
-          } else {
-            // Navigate to error screen if audiogram couldn't be read
-            throw new Error(result.error || 'Could not scan audiogram');
-          }
+          throw new Error(result.error || 'Could not scan audiogram');
         }
       } catch (_error) {
-        // Navigate to error screen on failure
-        router.push('/(tabs)/error-screen');
+        // Navigate to error screen on failure with error details
+        console.error('Scan failed:', _error);
+        const errorMessage = _error instanceof Error ? _error.message : 'Unknown error occurred';
+        router.push({
+          pathname: '/(tabs)/error-screen',
+          params: { errorMessage }
+        });
       }
     };
 

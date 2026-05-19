@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Error } from '@/components/icons/Error';
 
 export default function ErrorScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ errorMessage?: string }>();
 
   return (
     <View style={styles.container}>
@@ -11,8 +12,7 @@ export default function ErrorScreen() {
         <Error size={200} />
         <Text style={styles.title}>Oops!</Text>
         <Text style={styles.message}>
-          Er is iets fout gelopen,{'\n'}
-          probeer het nog eens opnieuw!
+          {params.errorMessage || 'Er is iets fout gelopen,\nprobeer het nog eens opnieuw!'}
         </Text>
       </View>
 
