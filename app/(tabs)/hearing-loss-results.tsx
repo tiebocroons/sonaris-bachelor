@@ -1,15 +1,16 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import React, { useState } from 'react';
-import { EarWithWaves } from '@/components/icons/EarWithWaves';
-import { EarWithAlert } from '@/components/icons/EarWithAlert';
-import { EarWithWarning } from '@/components/icons/EarWithWarning';
-import { getAnalysis, clearAnalysis } from '@/constants/analysis-store';
+import { NormalHearing } from '@/components/icons/NormalHearing';
+import { SevereHearing } from '@/components/icons/SevereHearing';
+import { getAnalysis, clearAnalysis, AnalysisData } from '@/constants/analysis-store';
 
 export default function HearingLossResultsScreen() {
   const [showDetails, setShowDetails] = useState(false);
-
-  const analysis = getAnalysis();
-  clearAnalysis();
+  const [analysis] = useState<AnalysisData | null>(() => {
+    const data = getAnalysis();
+    clearAnalysis();
+    return data;
+  });
 
   if (!analysis) {
     return (
@@ -23,17 +24,15 @@ export default function HearingLossResultsScreen() {
   const getSeverityIcon = (severity: string) => {
     switch (severity?.toLowerCase()) {
       case 'normal':
-        return <EarWithWaves size={100} />;
       case 'mild':
       case 'moderate':
-        return <EarWithAlert size={100} />;
+        return <NormalHearing size={100} />;
       case 'moderately_severe':
       case 'moderately severe':
       case 'severe':
       case 'profound':
-        return <EarWithWarning size={100} />;
       default:
-        return <EarWithWarning size={100} />;
+        return <SevereHearing size={100} />;
     }
   };
 
@@ -118,6 +117,27 @@ export default function HearingLossResultsScreen() {
                   </Text>
                 ))}
               </View>
+            )}
+            {/* Fallback: show any extra fields the AI returned that aren't displayed above */}
+            {(() => {
+              const knownKeys = new Set(['hearingLossDetected', 'severity', 'summary', 'explanation', 'whyHearingLoss', 'howAnalysis', 'thresholds', 'recommendations']);
+              const extraEntries = Object.entries(analysis).filter(([k]) => !knownKeys.has(k));
+              if (extraEntries.length === 0) return null;
+              return (
+                <View>
+                  {extraEntries.map(([key, value]) => (
+                    <Text key={key} style={styles.detailsText}>
+                      <Text style={styles.detailsLabel}>{key}: </Text>
+                      {typeof value === 'string' ? value : JSON.stringify(value)}
+                    </Text>
+                  ))}
+                </View>
+              );
+            })()}
+            {/* If absolutely nothing rendered, show a message */}
+            {!analysis.explanation && !analysis.whyHearingLoss && !analysis.howAnalysis && !analysis.thresholds && !(analysis.recommendations?.length) &&
+              Object.keys(analysis).filter(k => !['hearingLossDetected','severity','summary'].includes(k)).length === 0 && (
+              <Text style={styles.detailsText}>Geen extra details beschikbaar.</Text>
             )}
           </View>
         )}

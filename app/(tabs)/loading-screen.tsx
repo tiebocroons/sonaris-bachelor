@@ -5,8 +5,8 @@ import Svg, { Path } from 'react-native-svg';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { setAnalysis } from '@/constants/analysis-store';
 
-// Backend proxy URL (replace 127.0.0.1 with your machine IP for mobile testing)
-const BACKEND_URL = 'http://localhost:3000/api/scan-audiogram';
+// Backend proxy URL — nginx on VPS forwards /api/ to Node backend
+const BACKEND_URL = 'http://37.97.169.128/api/scan-audiogram';
 
 // Cloudinary configuration
 const CLOUDINARY_CLOUD_NAME = 'dkpn2svtk'; // Replace with your Cloudinary cloud name
@@ -63,6 +63,26 @@ export default function LoadingScreen() {
           
           const compressedResponse = await fetch(furtherCompressed.uri);
           blob = await compressedResponse.blob();
+        }
+
+        // On web, convert any image (including SVG, unknown types) to JPEG via Canvas
+        // This avoids Gemini rejecting SVG URLs and handles unreliable MIME types from the picker
+        if (Platform.OS === 'web') {
+          blob = await new Promise<Blob>((resolve, reject) => {
+            const url = URL.createObjectURL(blob);
+            const img = new window.Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.naturalWidth || img.width;
+              canvas.height = img.naturalHeight || img.height;
+              const ctx = canvas.getContext('2d');
+              ctx?.drawImage(img, 0, 0);
+              URL.revokeObjectURL(url);
+              canvas.toBlob((b) => b ? resolve(b) : reject(new Error('Canvas conversion failed')), 'image/jpeg', 0.85);
+            };
+            img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
+            img.src = url;
+          });
         }
 
         const formData = new FormData();

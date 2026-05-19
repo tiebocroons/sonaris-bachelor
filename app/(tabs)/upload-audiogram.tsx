@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
@@ -13,7 +13,7 @@ export default function UploadAudiogramScreen() {
   const cameraRef = useRef<CameraView>(null);
 
   useEffect(() => {
-    if (!permission?.granted) {
+    if (Platform.OS !== 'web' && !permission?.granted) {
       requestPermission();
     }
   }, [permission, requestPermission]);
