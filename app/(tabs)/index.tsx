@@ -13,16 +13,16 @@ export default function HomeScreen() {
           contentFit="contain"
         />
         <Text style={styles.description}>
-          Scan jou audiogrammen met{'\n'}
-          onze app{'\n'}
-          en geef de beste resultaten{'\n'}
-          aan u patiënten.
+          Scan your audiograms with{'\'\n'}
+          our app{'\'\n'}
+          and provide the best results{'\'\n'}
+          to your patients.
         </Text>
         <Pressable 
           style={styles.infoLink}
           onPress={() => router.push('/(tabs)/scan-instructions')}
         >
-          <Text style={styles.infoLinkText}>Meer info over de app</Text>
+          <Text style={styles.infoLinkText}>More info about the app</Text>
         </Pressable>
       </View>
       

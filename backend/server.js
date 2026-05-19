@@ -116,7 +116,7 @@ app.post('/api/scan-audiogram', async (req, res) => {
             const howMatch = jsonText.match(/"howAnalysis"\s*:\s*"((?:[^"\\]|\\.)*)"/);
             analysisData = {
               hearingLossDetected: boolMatch ? boolMatch[1] === 'true' : null,
-              summary: summaryMatch ? summaryMatch[1] : 'Analyse beschikbaar maar antwoord was afgekapt.',
+              summary: summaryMatch ? summaryMatch[1] : 'Analysis available but response was truncated.',
               severity: severityMatch ? severityMatch[1] : 'unknown',
               ...(explanationMatch ? { explanation: explanationMatch[1] } : {}),
               ...(whyMatch ? { whyHearingLoss: whyMatch[1] } : {}),

@@ -12,19 +12,19 @@ export default function ScanInstructionsScreen() {
   const steps = [
     {
       icon: <Camera size={200} />,
-      text: 'Maak met uw\nsmartphonecamera een\nfoto van een bestaand\nanalog of digitaal\naudiogram.\nZorg voor voldoende licht\nen een volledig zicht op de\nmeetwaarden.\nDe app herkent\nautomatisch de relevante\naudiometrische gegevens.',
+      text: 'Use your smartphone\ncamera to take a photo\nof an existing analog\nor digital audiogram.\nEnsure good lighting\nand a complete view\nof the measurement values.\nThe app will automatically\nrecognize the relevant\naudiometric data.',
     },
     {
       icon: <ConvertShape size={200} />,
-      text: 'De gescande\n audiogramwaarden worden automatisch omgezet\n naar gestructureerde digitale\n data.\nManuele invoer\n is niet nodig.\nDit bespaart tijd\n en vermindert interpretatiefouten.',
+      text: 'The scanned audiogram\nvalues are automatically\nconverted to structured\ndigital data.\nManual entry is not required.\nThis saves time and\nreduces interpretation errors.',
     },
     {
       icon: <Camera size={200} />,
-      text: 'Stap 3 tekst hier.',
+      text: 'Upload the photo\nor take one directly\nin the app.\nMake sure the\naudiogram is fully\nvisible and in focus.',
     },
     {
       icon: <Camera size={200} />,
-      text: 'Stap 4 tekst hier.',
+      text: 'Receive a clear\noverview of the\nhearing loss results\nand share them\nwith your patient.',
     },
   ];
 
@@ -60,7 +60,7 @@ export default function ScanInstructionsScreen() {
       </View>
 
       <Pressable style={styles.button} onPress={handleNext}>
-        <Text style={styles.buttonText}>Verdergaan</Text>
+        <Text style={styles.buttonText}>Continue</Text>
       </Pressable>
     </View>
   );

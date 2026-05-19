@@ -12,12 +12,12 @@ export default function ErrorScreen() {
         <Error size={200} />
         <Text style={styles.title}>Oops!</Text>
         <Text style={styles.message}>
-          {params.errorMessage || 'Er is iets fout gelopen,\nprobeer het nog eens opnieuw!'}
+          {params.errorMessage || 'Something went wrong,\nplease try again!'}
         </Text>
       </View>
 
       <Pressable style={styles.button} onPress={() => router.push('/')}>
-        <Text style={styles.buttonText}>Probeer opnieuw</Text>
+        <Text style={styles.buttonText}>Try again</Text>
       </Pressable>
     </View>
   );

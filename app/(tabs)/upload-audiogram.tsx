@@ -94,7 +94,7 @@ export default function UploadAudiogramScreen() {
             <View style={styles.placeholderContent}>
               <Text style={styles.placeholderIcon}>🖼️</Text>
               <Text style={styles.placeholderText}>
-                Neem een foto van de audiogram{'\n'}PNG, WebP en JPG toegelaten
+                Take a photo of the audiogram{'\'\n'}PNG, WebP and JPG supported
               </Text>
             </View>
           )}
@@ -105,7 +105,7 @@ export default function UploadAudiogramScreen() {
             style={styles.changeButton}
             onPress={() => setImage(null)}
           >
-            <Text style={styles.changeButtonText}>Andere foto</Text>
+            <Text style={styles.changeButtonText}>Change photo</Text>
           </Pressable>
         )}
       </View>
@@ -121,14 +121,14 @@ export default function UploadAudiogramScreen() {
             }
           }}
         >
-          <Text style={styles.buttonText}>📷 Neem foto</Text>
+          <Text style={styles.buttonText}>📷 Take photo</Text>
         </Pressable>
 
         <Pressable 
           style={styles.button}
           onPress={handlePickImage}
         >
-          <Text style={styles.buttonText}>📁 Upload van opslag</Text>
+          <Text style={styles.buttonText}>📁 Upload from storage</Text>
         </Pressable>
       </View>
     </View>

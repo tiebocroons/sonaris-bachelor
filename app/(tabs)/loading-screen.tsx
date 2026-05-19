@@ -6,7 +6,7 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import { setAnalysis } from '@/constants/analysis-store';
 
 // Backend proxy URL — nginx on VPS forwards /api/ to Node backend
-const BACKEND_URL = 'http://37.97.169.128/api/scan-audiogram';
+const BACKEND_URL = 'https://sonaris.tiebocroons.be/api/scan-audiogram';
 
 // Cloudinary configuration
 const CLOUDINARY_CLOUD_NAME = 'dkpn2svtk'; // Replace with your Cloudinary cloud name
@@ -190,7 +190,7 @@ export default function LoadingScreen() {
           opacity={getDotOpacity(2)}
         />
       </Svg>
-      <Text style={styles.text}>Analysering van audiogram...</Text>
+      <Text style={styles.text}>Analysing audiogram...</Text>
     </View>
   );
 }

@@ -39,20 +39,20 @@ export default function HearingLossResultsScreen() {
   const getSeverityTitle = (severity: string) => {
     switch (severity?.toLowerCase()) {
       case 'normal':
-        return 'Normaal gehoor';
+        return 'Normal hearing';
       case 'mild':
-        return 'Licht gehoorverlies';
+        return 'Mild hearing loss';
       case 'moderate':
-        return 'Matig gehoorverlies';
+        return 'Moderate hearing loss';
       case 'moderately_severe':
       case 'moderately severe':
-        return 'Matig-ernstig gehoorverlies';
+        return 'Moderately severe hearing loss';
       case 'severe':
-        return 'Ernstig gehoorverlies';
+        return 'Severe hearing loss';
       case 'profound':
-        return 'Zeer ernstig gehoorverlies';
+        return 'Profound hearing loss';
       default:
-        return 'Gehoorverlies';
+        return 'Hearing loss';
     }
   };
 
@@ -69,7 +69,7 @@ export default function HearingLossResultsScreen() {
 
         <View style={styles.resultBox}>
           <Text style={styles.resultText}>
-            {analysis.summary || 'Analyse van uw audiogram is voltooid.'}
+            {analysis.summary || 'Analysis of your audiogram is complete.'}
           </Text>
         </View>
 
@@ -77,40 +77,40 @@ export default function HearingLossResultsScreen() {
           <View style={styles.detailsBox}>
             {analysis.explanation && (
               <Text style={styles.detailsText}>
-                <Text style={styles.detailsLabel}>Uitleg: </Text>
+                <Text style={styles.detailsLabel}>Explanation: </Text>
                 {analysis.explanation}
               </Text>
             )}
             {analysis.whyHearingLoss && (
               <Text style={styles.detailsText}>
-                <Text style={styles.detailsLabel}>Analyse: </Text>
+                <Text style={styles.detailsLabel}>Analysis: </Text>
                 {analysis.whyHearingLoss}
               </Text>
             )}
             {analysis.howAnalysis && (
               <Text style={styles.detailsText}>
-                <Text style={styles.detailsLabel}>Hoe we het hebben gelezen: </Text>
+                <Text style={styles.detailsLabel}>How we read it: </Text>
                 {analysis.howAnalysis}
               </Text>
             )}
             {analysis.thresholds && (
               <View style={styles.thresholdsBox}>
-                <Text style={styles.detailsLabel}>Drempelwaarden (dB HL):</Text>
-                {analysis.thresholds.frequencies && (
-                  <>
-                    <Text style={styles.detailsText}>
-                      Linkeroor: {JSON.stringify(analysis.thresholds.leftEar)}
-                    </Text>
-                    <Text style={styles.detailsText}>
-                      Rechteroor: {JSON.stringify(analysis.thresholds.rightEar)}
-                    </Text>
-                  </>
+                <Text style={styles.detailsLabel}>Thresholds (dB HL):</Text>
+                {analysis.thresholds.leftEar && (
+                  <Text style={styles.detailsText}>
+                    Left ear: {JSON.stringify(analysis.thresholds.leftEar)}
+                  </Text>
+                )}
+                {analysis.thresholds.rightEar && (
+                  <Text style={styles.detailsText}>
+                    Right ear: {JSON.stringify(analysis.thresholds.rightEar)}
+                  </Text>
                 )}
               </View>
             )}
             {analysis.recommendations && analysis.recommendations.length > 0 && (
               <View style={styles.recommendationsBox}>
-                <Text style={styles.detailsLabel}>Aanbevelingen:</Text>
+                <Text style={styles.detailsLabel}>Recommendations:</Text>
                 {analysis.recommendations.map((rec: string, index: number) => (
                   <Text key={index} style={styles.recommendationItem}>
                     • {rec}
@@ -143,7 +143,7 @@ export default function HearingLossResultsScreen() {
             {/* If absolutely nothing rendered, show a message */}
             {!analysis.explanation && !analysis.whyHearingLoss && !analysis.howAnalysis && !analysis.thresholds && !(analysis.recommendations?.length) &&
               Object.keys(analysis).filter(k => !['hearingLossDetected','severity','summary'].includes(k)).length === 0 && (
-              <Text style={styles.detailsText}>Geen extra details beschikbaar.</Text>
+              <Text style={styles.detailsText}>No additional details available.</Text>
             )}
           </View>
         )}
@@ -153,7 +153,7 @@ export default function HearingLossResultsScreen() {
           onPress={() => setShowDetails(!showDetails)}
         >
           <Text style={styles.readMoreText}>
-            {showDetails ? 'Minder tonen' : 'Meer tonen'}
+            {showDetails ? 'Show less' : 'Show more'}
           </Text>
         </Pressable>
       </View>
