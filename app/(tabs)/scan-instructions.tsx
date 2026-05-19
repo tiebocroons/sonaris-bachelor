@@ -90,11 +90,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   instruction: {
-    fontSize: 16,
+    fontFamily: 'BarlowCondensed_400Regular',
+    fontSize: 20,
     color: '#333',
     marginTop: 20,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 26,
   },
   dotsContainer: {
     flexDirection: 'row',
@@ -115,9 +116,9 @@ const styles = StyleSheet.create({
     width: 225,
   },
   buttonText: {
+    fontFamily: 'BarlowCondensed_400Regular',
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 20,
     textAlign: 'center',
   },
 });

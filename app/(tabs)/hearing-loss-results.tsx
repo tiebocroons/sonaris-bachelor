@@ -229,18 +229,19 @@ const styles = StyleSheet.create({
     maxWidth: 250,
   },
   resultText: {
+    fontFamily: 'BarlowCondensed_400Regular',
     fontSize: 20,
     color: '#333',
-    lineHeight: 20,
+    lineHeight: 26,
     maxWidth: 250,
   },
   readMoreButton: {
     marginVertical: 15,
   },
   readMoreText: {
-    fontSize: 16,
+    fontFamily: 'BarlowCondensed_400Regular',
+    fontSize: 20,
     color: '#E31937',
-    fontWeight: '600',
     textDecorationLine: 'underline',
   },
   detailsBox: {
@@ -252,10 +253,11 @@ const styles = StyleSheet.create({
     maxWidth: 250,
   },
   detailsText: {
+    fontFamily: 'BarlowCondensed_400Regular',
     fontSize: 20,
     color: '#333',
     marginBottom: 12,
-    lineHeight: 20,
+    lineHeight: 26,
   },
   detailsLabel: {
     fontFamily: 'AnekTamil_700Bold',
@@ -282,8 +284,8 @@ const styles = StyleSheet.create({
   thresholdHeaderCell: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 11,
-    fontWeight: '700',
+    fontFamily: 'BarlowCondensed_400Regular',
+    fontSize: 20,
     color: '#fff',
     backgroundColor: '#E31937',
     paddingVertical: 6,
@@ -291,8 +293,8 @@ const styles = StyleSheet.create({
   thresholdEarCell: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 13,
-    fontWeight: '700',
+    fontFamily: 'BarlowCondensed_400Regular',
+    fontSize: 20,
     color: '#E31937',
     paddingVertical: 8,
     borderRightWidth: 1,
@@ -301,7 +303,8 @@ const styles = StyleSheet.create({
   thresholdValueCell: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 13,
+    fontFamily: 'BarlowCondensed_400Regular',
+    fontSize: 20,
     color: '#333',
     paddingVertical: 8,
     borderRightWidth: 1,
@@ -314,10 +317,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   recommendationItem: {
-    fontSize: 14,
+    fontFamily: 'BarlowCondensed_400Regular',
+    fontSize: 20,
     color: '#333',
     marginTop: 8,
-    lineHeight: 18,
+    lineHeight: 26,
   },
   errorText: {
     fontSize: 16,
@@ -338,9 +342,9 @@ const styles = StyleSheet.create({
     width: 225,
   },
   pdfButtonText: {
+    fontFamily: 'BarlowCondensed_400Regular',
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 20,
     textAlign: 'center',
   },
 });

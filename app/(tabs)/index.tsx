@@ -56,17 +56,19 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   description: {
+    fontFamily: 'BarlowCondensed_400Regular',
     fontSize: 20,
     color: '#333',
     marginTop: 20,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 26,
   },
   infoLink: {
     marginTop: 20,
   },
   infoLinkText: {
-    fontSize: 16,
+    fontFamily: 'BarlowCondensed_400Regular',
+    fontSize: 20,
     color: '#E31937',
     textDecorationLine: 'underline',
   },
@@ -91,9 +93,9 @@ const styles = StyleSheet.create({
     width: 225,
   },
   buttonText: {
+    fontFamily: 'BarlowCondensed_400Regular',
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 20,
     textAlign: 'center',
   },
 });

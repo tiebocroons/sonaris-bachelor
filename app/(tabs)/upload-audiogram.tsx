@@ -177,10 +177,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   placeholderText: {
+    fontFamily: 'BarlowCondensed_400Regular',
     fontSize: 20,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 26,
   },
   image: {
     width: '100%',
@@ -209,9 +210,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   cancelButtonText: {
+    fontFamily: 'BarlowCondensed_400Regular',
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 20,
   },
   captureButton: {
     width: 70,
@@ -242,9 +243,9 @@ const styles = StyleSheet.create({
     borderColor: '#E31937',
   },
   changeButtonText: {
+    fontFamily: 'BarlowCondensed_400Regular',
     color: '#E31937',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 20,
     textAlign: 'center',
   },
   buttonContainer: {
@@ -260,9 +261,9 @@ const styles = StyleSheet.create({
     width: 225,
   },
   buttonText: {
+    fontFamily: 'BarlowCondensed_400Regular',
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 20,
     textAlign: 'center',
   },
 });

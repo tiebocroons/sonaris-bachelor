@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { useEffect } from 'react';
 import { useFonts, AnekTamil_700Bold } from '@expo-google-fonts/anek-tamil';
+import { BarlowCondensed_400Regular } from '@expo-google-fonts/barlow-condensed';
 import * as SplashScreen from 'expo-splash-screen';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -16,7 +17,7 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [fontsLoaded] = useFonts({ AnekTamil_700Bold });
+  const [fontsLoaded] = useFonts({ AnekTamil_700Bold, BarlowCondensed_400Regular });
 
   useEffect(() => {
     if (fontsLoaded) {
