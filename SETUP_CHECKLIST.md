@@ -1,4 +1,137 @@
-# Sonaris Audiogram Scanning - Complete Setup Checklist
+# Sonaris — Setup Checklist
+
+## Architecture
+
+```
+User uploads audiogram photo
+         ↓
+Image converted to JPEG (Canvas, web) or compressed (native)
+         ↓
+Uploaded to Cloudinary
+         ↓
+Backend proxy on VPS receives Cloudinary URL
+         ↓
+N8N webhook sends image to Google Gemini
+         ↓
+Gemini analyses audiogram → JSON response
+         ↓
+Backend parses + repairs JSON if truncated
+         ↓
+Results displayed in app (severity, thresholds, recommendations)
+```
+
+---
+
+## Live Deployment
+
+| Resource | Value |
+|----------|-------|
+| App URL | https://sonaris.tiebocroons.be |
+| VPS IP | 37.97.169.128 |
+| Backend | `/opt/sonaris-backend` (PM2: `sonaris-backend`) |
+| Frontend | `/var/www/sonaris/dist` (nginx) |
+
+### Deploy (one command)
+
+```powershell
+.\deploy.ps1
+```
+
+---
+
+## Local Development Setup
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### 1. Frontend
+
+```bash
+npm install
+npx expo start
+# Press w for web
+```
+
+### 2. Backend proxy
+
+```bash
+cd backend
+npm install
+npm start
+# Runs on http://localhost:3000
+```
+
+Update `BACKEND_URL` in `app/(tabs)/loading-screen.tsx` to `http://localhost:3000/api/scan-audiogram` for local development.
+
+---
+
+## Configuration
+
+| File | Variable | Value |
+|------|----------|-------|
+| `app/(tabs)/loading-screen.tsx` | `BACKEND_URL` | `https://sonaris.tiebocroons.be/api/scan-audiogram` |
+| `app/(tabs)/loading-screen.tsx` | `CLOUDINARY_CLOUD_NAME` | `dkpn2svtk` |
+| `app/(tabs)/loading-screen.tsx` | `CLOUDINARY_UPLOAD_PRESET` | `sonaris_preset` |
+| `backend/server.js` | `N8N_WEBHOOK_URL` | Your N8N webhook URL |
+
+---
+
+## Backend Endpoints
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/health` | GET | Verify server is running |
+| `/api/scan-audiogram` | POST | Relay image URL to N8N |
+
+---
+
+## N8N / Gemini Setup
+
+- Model: `gemini-1.5-flash` or `gemini-2.0-flash`
+- Set `maxOutputTokens` to **1500+** in the Gemini node options
+- Use the prompt from `README.md`
+
+---
+
+## VPS Management
+
+```bash
+# Connect
+ssh root@37.97.169.128
+
+# Backend status
+pm2 list
+pm2 logs sonaris-backend --lines 50
+
+# Restart backend
+pm2 restart sonaris-backend
+
+# Fix permissions after deploy
+chmod -R 755 /var/www/sonaris
+restorecon -Rv /var/www/sonaris
+
+# Reload nginx
+systemctl reload nginx
+
+# Check nginx errors
+tail -f /var/log/nginx/error.log
+```
+
+---
+
+## Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| 502 Bad Gateway | Run `setsebool -P httpd_can_network_connect 1` on VPS |
+| 403 Forbidden | Run `chmod -R 755 /var/www/sonaris && restorecon -Rv /var/www/sonaris` |
+| App shows Dutch text | Hard refresh: `Ctrl+Shift+R` |
+| Thresholds empty | Check N8N `maxOutputTokens` is set to 1500+ |
+| SVG/unsupported format error | User must upload a JPEG or PNG image |
+| Scan stuck loading | Check `pm2 list` — backend may be down |
+
 
 ## Architecture Overview
 

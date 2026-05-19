@@ -96,16 +96,41 @@ export default function HearingLossResultsScreen() {
             {analysis.thresholds && (
               <View style={styles.thresholdsBox}>
                 <Text style={styles.detailsLabel}>Thresholds (dB HL):</Text>
-                {analysis.thresholds.leftEar && (
-                  <Text style={styles.detailsText}>
-                    Left ear: {JSON.stringify(analysis.thresholds.leftEar)}
-                  </Text>
-                )}
-                {analysis.thresholds.rightEar && (
-                  <Text style={styles.detailsText}>
-                    Right ear: {JSON.stringify(analysis.thresholds.rightEar)}
-                  </Text>
-                )}
+                {/* Header row */}
+                {(() => {
+                  const thresholds = analysis.thresholds as { leftEar?: Record<string,number>; rightEar?: Record<string,number> };
+                  const freqs = ['250','500','1000','2000','4000','8000'];
+                  return (
+                    <View style={styles.thresholdTable}>
+                      <View style={styles.thresholdRow}>
+                        <Text style={styles.thresholdHeaderCell}>Hz</Text>
+                        {freqs.map(f => (
+                          <Text key={f} style={styles.thresholdHeaderCell}>{f}</Text>
+                        ))}
+                      </View>
+                      {thresholds.leftEar && (
+                        <View style={styles.thresholdRow}>
+                          <Text style={styles.thresholdEarCell}>L</Text>
+                          {freqs.map(f => (
+                            <Text key={f} style={styles.thresholdValueCell}>
+                              {thresholds.leftEar![f] ?? '—'}
+                            </Text>
+                          ))}
+                        </View>
+                      )}
+                      {thresholds.rightEar && (
+                        <View style={[styles.thresholdRow, styles.thresholdRowAlt]}>
+                          <Text style={styles.thresholdEarCell}>R</Text>
+                          {freqs.map(f => (
+                            <Text key={f} style={styles.thresholdValueCell}>
+                              {thresholds.rightEar![f] ?? '—'}
+                            </Text>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+                  );
+                })()}
               </View>
             )}
             {analysis.recommendations && analysis.recommendations.length > 0 && (
@@ -237,10 +262,49 @@ const styles = StyleSheet.create({
     color: '#E31937',
   },
   thresholdsBox: {
-    backgroundColor: '#f5f5f5',
     borderRadius: 8,
-    padding: 15,
     marginVertical: 10,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  thresholdTable: {
+    width: '100%',
+  },
+  thresholdRow: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+  },
+  thresholdRowAlt: {
+    backgroundColor: '#fdf0f2',
+  },
+  thresholdHeaderCell: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#fff',
+    backgroundColor: '#E31937',
+    paddingVertical: 6,
+  },
+  thresholdEarCell: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#E31937',
+    paddingVertical: 8,
+    borderRightWidth: 1,
+    borderRightColor: '#e0e0e0',
+  },
+  thresholdValueCell: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 13,
+    color: '#333',
+    paddingVertical: 8,
+    borderRightWidth: 1,
+    borderRightColor: '#e0e0e0',
   },
   recommendationsBox: {
     backgroundColor: '#f5f5f5',
