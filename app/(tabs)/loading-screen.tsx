@@ -104,20 +104,24 @@ export default function LoadingScreen() {
         const cloudinaryData = await cloudinaryResponse.json();
         const imageUrl = cloudinaryData.secure_url;
 
-        // Step 2: Send URL to backend
-        const response = await fetch(BACKEND_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            imageUrl: imageUrl,
-            fileName: 'audiogram.jpg',
-          }),
-        });
+        // Step 2: Send URL to backend (70s timeout — N8N can use up to 2×30s internally)
+        const backendController = new AbortController();
+        const backendTimer = setTimeout(() => backendController.abort(), 70000);
+        let response;
+        try {
+          response = await fetch(BACKEND_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageUrl, fileName: 'audiogram.jpg' }),
+            signal: backendController.signal,
+          });
+        } finally {
+          clearTimeout(backendTimer);
+        }
 
         if (!response.ok) {
-          throw new Error(`Server error: ${response.status}`);
+          const errBody = await response.json().catch(() => ({}));
+          throw new Error(errBody.error || `Server error: ${response.status}`);
         }
 
         const result = await response.json();

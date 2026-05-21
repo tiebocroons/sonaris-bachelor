@@ -6,6 +6,117 @@ const zlib = require('zlib');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const N8N_URL = 'https://bachelor.app.n8n.cloud/webhook/852c2c14-861a-426e-8eee-067e2a079a9d';
+const N8N_TIMEOUT_MS = 30000; // 30s per attempt
+const N8N_MAX_ATTEMPTS = 2;
+
+const VALID_SEVERITIES = new Set(['normal', 'mild', 'moderate', 'moderately_severe', 'severe', 'profound']);
+
+// Normalize AI-returned severity to a known value
+function normalizeSeverity(raw) {
+  if (!raw || typeof raw !== 'string') return 'unknown';
+  const s = raw.toLowerCase().trim().replace(/[\s-]+/g, '_');
+  if (VALID_SEVERITIES.has(s)) return s;
+  if (s.includes('profound')) return 'profound';
+  if (s.includes('severe') && s.includes('mod')) return 'moderately_severe';
+  if (s.includes('severe')) return 'severe';
+  if (s.includes('moderate')) return 'moderate';
+  if (s.includes('mild')) return 'mild';
+  if (s.includes('normal')) return 'normal';
+  return 'unknown';
+}
+
+// Repair truncated JSON by closing unclosed strings, arrays, and objects
+function repairJson(text) {
+  // Fast path
+  try { return JSON.parse(text); } catch (_) {}
+
+  let s = text;
+  let inString = false, escaped = false;
+  let openBraces = 0, openBrackets = 0;
+
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (escaped) { escaped = false; continue; }
+    if (c === '\\' && inString) { escaped = true; continue; }
+    if (c === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (c === '{') openBraces++;
+    else if (c === '}') openBraces--;
+    else if (c === '[') openBrackets++;
+    else if (c === ']') openBrackets--;
+  }
+
+  // Close unclosed string, then arrays, then objects
+  if (inString) s += '"';
+  if (openBrackets > 0) s += ']'.repeat(openBrackets);
+  if (openBraces > 0) s += '}'.repeat(openBraces);
+
+  try { return JSON.parse(s); } catch (_) {}
+
+  // Strip last incomplete key-value pair after the last comma, then close
+  const lastComma = s.lastIndexOf(',');
+  if (lastComma > 0) {
+    let trimmed = s.substring(0, lastComma);
+    let ob = 0, cb = 0;
+    for (const c of trimmed) {
+      if (c === '{') ob++; else if (c === '}') cb++;
+    }
+    trimmed += '}'.repeat(Math.max(0, ob - cb));
+    try { return JSON.parse(trimmed); } catch (_) {}
+  }
+
+  return null;
+}
+
+// Call N8N with timeout and retry
+async function callN8N(imageUrl) {
+  let lastError;
+  for (let attempt = 1; attempt <= N8N_MAX_ATTEMPTS; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), N8N_TIMEOUT_MS);
+    try {
+      console.log(`N8N attempt ${attempt}...`);
+      const response = await fetch(N8N_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl }),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+
+      // Decompress if gzip
+      let buf = await response.buffer();
+      if (response.headers.get('content-encoding') === 'gzip') {
+        try {
+          buf = await new Promise((resolve, reject) =>
+            zlib.gunzip(buf, (err, d) => (err ? reject(err) : resolve(d)))
+          );
+        } catch (_) { /* fallthrough to raw buffer */ }
+      }
+      const text = buf.toString('utf-8');
+      console.log(`N8N attempt ${attempt} — status: ${response.status}, length: ${text.length}`);
+
+      // Retry on 5xx or empty body
+      if ((response.status >= 500 || !text.trim()) && attempt < N8N_MAX_ATTEMPTS) {
+        console.warn(`Retrying (status ${response.status}, empty=${!text.trim()})`);
+        lastError = new Error(`N8N returned ${response.status}`);
+        continue;
+      }
+
+      return { ok: response.ok, status: response.status, text };
+    } catch (err) {
+      clearTimeout(timer);
+      lastError = err;
+      if (attempt < N8N_MAX_ATTEMPTS) {
+        console.warn(`N8N attempt ${attempt} failed (${err.message}), retrying...`);
+        continue;
+      }
+    }
+  }
+  throw lastError || new Error('N8N request failed after retries');
+}
+
 // Enable CORS for frontend requests
 app.use(cors());
 app.use(express.json());
@@ -20,139 +131,98 @@ app.post('/api/scan-audiogram', async (req, res) => {
     }
 
     console.log('Received imageUrl:', imageUrl);
-    console.log('Forwarding to N8N webhook...');
 
-    // Forward request to N8N webhook
-    const n8nResponse = await fetch(
-      'https://bachelor.app.n8n.cloud/webhook/852c2c14-861a-426e-8eee-067e2a079a9d',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageUrl }),
-      }
-    );
+    const { ok, status, text: responseText } = await callN8N(imageUrl);
+    console.log('N8N final response length:', responseText.length);
+    console.log('N8N raw response:', responseText.substring(0, 500));
 
-    // Log response status
-    console.log('N8N response status:', n8nResponse.status);
-    console.log('N8N response headers:', n8nResponse.headers.raw());
-
-    // Handle gzip compression with fallback
-    let responseBuffer = await n8nResponse.buffer();
-    const encoding = n8nResponse.headers.get('content-encoding');
-    let responseText = '';
-    
-    if (encoding === 'gzip') {
-      console.log('Response has gzip encoding header, attempting decompression...');
-      try {
-        responseBuffer = await new Promise((resolve, reject) => {
-          zlib.gunzip(responseBuffer, (err, decompressed) => {
-            if (err) reject(err);
-            else resolve(decompressed);
-          });
-        });
-        console.log('Successfully decompressed gzip');
-      } catch (decompressError) {
-        console.warn('Gzip decompression failed, treating as plain text:', decompressError.message);
-        // If decompression fails, assume it's already plain text
-      }
-    }
-    
-    responseText = responseBuffer.toString('utf-8');
-    console.log('N8N raw response length:', responseText.length);
-    console.log('N8N raw response:', responseText);
-
-    // Try to parse as JSON
+    // Parse response
     let responseData;
     try {
-      if (!responseText) {
-        throw new Error('Empty response from N8N');
-      }
+      if (!responseText.trim()) throw new Error('Empty response from N8N');
 
       let parsedResponse = JSON.parse(responseText);
 
-      // --- Handle Gemini candidates array format ---
-      // Shape: [{ content: { parts: [{ text: "..." }] }, finishReason, index }]
+      // Handle Gemini candidates array format
       let extractedText = null;
       if (Array.isArray(parsedResponse) && parsedResponse[0]?.content?.parts) {
-        console.log('Detected Gemini candidates response format');
-        extractedText = parsedResponse[0].content.parts
-          .map(p => p.text || '')
-          .join('');
+        console.log('Detected Gemini candidates format');
+        extractedText = parsedResponse[0].content.parts.map(p => p.text || '').join('');
       } else if (parsedResponse.text && typeof parsedResponse.text === 'string') {
         extractedText = parsedResponse.text;
       }
 
       if (extractedText !== null) {
-        console.log('Extracted text from response:', extractedText.substring(0, 300));
+        console.log('Extracted text:', extractedText.substring(0, 300));
 
-        // Strip markdown code fences if present
+        // Strip markdown code fences
         const fenceMatch = extractedText.match(/```(?:json)?\s*([\s\S]*?)(?:\s*```|$)/);
         const jsonText = fenceMatch ? fenceMatch[1].trim() : extractedText.trim();
 
-        // Try to parse extracted JSON; if truncated, attempt to complete it
-        let analysisData = null;
-        try {
-          analysisData = JSON.parse(jsonText);
-        } catch (_) {
-          // Attempt to close truncated JSON by appending closing braces
-          let repaired = jsonText;
-          for (let attempt = 0; attempt < 5; attempt++) {
-            repaired += '}';
-            try {
-              analysisData = JSON.parse(repaired);
-              console.log('Repaired truncated JSON after adding', attempt + 1, 'closing brace(s)');
-              break;
-            } catch (_) {}
-          }
+        // Try parse → repair → regex fallback
+        let analysisData = repairJson(jsonText);
 
-          // Fallback: extract key fields via regex
-          if (!analysisData) {
-            console.warn('JSON repair failed, extracting fields via regex');
-            const boolMatch = jsonText.match(/"hearingLossDetected"\s*:\s*(true|false)/);
-            const summaryMatch = jsonText.match(/"summary"\s*:\s*"((?:[^"\\]|\\.)*)"/);
-            const severityMatch = jsonText.match(/"severity"\s*:\s*"([^"]*)"/);
-            const explanationMatch = jsonText.match(/"explanation"\s*:\s*"((?:[^"\\]|\\.)*)"/);
-            const whyMatch = jsonText.match(/"whyHearingLoss"\s*:\s*"((?:[^"\\]|\\.)*)"/);
-            const howMatch = jsonText.match(/"howAnalysis"\s*:\s*"((?:[^"\\]|\\.)*)"/);
-            analysisData = {
-              hearingLossDetected: boolMatch ? boolMatch[1] === 'true' : null,
-              summary: summaryMatch ? summaryMatch[1] : 'Analysis available but response was truncated.',
-              severity: severityMatch ? severityMatch[1] : 'unknown',
-              ...(explanationMatch ? { explanation: explanationMatch[1] } : {}),
-              ...(whyMatch ? { whyHearingLoss: whyMatch[1] } : {}),
-              ...(howMatch ? { howAnalysis: howMatch[1] } : {}),
-            };
+        if (!analysisData) {
+          console.warn('JSON repair failed, falling back to regex extraction');
+          const boolMatch   = jsonText.match(/"hearingLossDetected"\s*:\s*(true|false)/);
+          const summaryMatch   = jsonText.match(/"summary"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+          const severityMatch  = jsonText.match(/"severity"\s*:\s*"([^"]*)"/);
+          const explanationMatch = jsonText.match(/"explanation"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+          const whyMatch       = jsonText.match(/"whyHearingLoss"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+          const howMatch       = jsonText.match(/"howAnalysis"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+          analysisData = {
+            hearingLossDetected: boolMatch ? boolMatch[1] === 'true' : null,
+            summary: summaryMatch ? summaryMatch[1] : 'Analysis available but response was truncated.',
+            severity: severityMatch ? severityMatch[1] : 'unknown',
+            ...(explanationMatch ? { explanation: explanationMatch[1] } : {}),
+            ...(whyMatch       ? { whyHearingLoss: whyMatch[1] }       : {}),
+            ...(howMatch       ? { howAnalysis: howMatch[1] }           : {}),
+          };
+        }
+
+        // Normalize severity to a known value
+        analysisData.severity = normalizeSeverity(analysisData.severity);
+        console.log('Normalized severity:', analysisData.severity);
+
+        // Sanitize threshold values — ensure they are numbers or null
+        if (analysisData.thresholds && typeof analysisData.thresholds === 'object') {
+          for (const ear of ['leftEar', 'rightEar']) {
+            if (analysisData.thresholds[ear] && typeof analysisData.thresholds[ear] === 'object') {
+              for (const freq of Object.keys(analysisData.thresholds[ear])) {
+                const v = Number(analysisData.thresholds[ear][freq]);
+                analysisData.thresholds[ear][freq] = isNaN(v) ? null : v;
+              }
+            }
           }
         }
 
         responseData = { success: true, analysis: analysisData };
       } else {
-        // Already in expected format
         responseData = parsedResponse;
       }
 
       console.log('Final responseData:', JSON.stringify(responseData).substring(0, 300));
     } catch (parseError) {
       console.error('Failed to parse N8N response:', parseError.message);
-      console.error('Raw response was:', responseText.substring(0, 500));
-      responseData = { 
-        error: 'Failed to parse N8N response',
+      responseData = {
+        error: 'Failed to parse analysis response',
         details: parseError.message,
-        rawResponse: responseText.substring(0, 1000)
       };
     }
 
-    // Forward N8N response back to frontend
-    if (n8nResponse.ok) {
+    if (ok) {
       res.json(responseData);
     } else {
-      res.status(n8nResponse.status).json(responseData);
+      res.status(status).json(responseData);
     }
   } catch (error) {
     console.error('Error in proxy:', error);
-    res.status(500).json({ 
-      error: 'Failed to process audiogram',
-      details: error.message 
+    const isTimeout = error.name === 'AbortError' || error.message?.includes('abort');
+    res.status(503).json({
+      error: isTimeout
+        ? 'Analysis timed out — please try again'
+        : 'Failed to process audiogram',
+      details: error.message,
     });
   }
 });

@@ -1,10 +1,12 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
 import { NormalHearing } from '@/components/icons/NormalHearing';
 import { SevereHearing } from '@/components/icons/SevereHearing';
 import { getAnalysis, clearAnalysis, AnalysisData } from '@/constants/analysis-store';
 
 export default function HearingLossResultsScreen() {
+  const router = useRouter();
   const [showDetails, setShowDetails] = useState(false);
   const [analysis] = useState<AnalysisData | null>(() => {
     const data = getAnalysis();
@@ -188,6 +190,9 @@ export default function HearingLossResultsScreen() {
         <Pressable style={styles.pdfButton}>
           <Text style={styles.pdfButtonText}>Download PDF</Text>
         </Pressable>
+        <Pressable style={styles.scanButton} onPress={() => router.push('/upload-audiogram')}>
+          <Text style={styles.scanButtonText}>Scan new audiogram</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -356,6 +361,20 @@ const styles = StyleSheet.create({
   pdfButtonText: {
     fontFamily: 'BarlowCondensed_400Regular',
     color: '#fff',
+    fontSize: 20,
+    textAlign: 'center',
+  },
+  scanButton: {
+    marginTop: 12,
+    paddingVertical: 14,
+    borderRadius: 25,
+    width: 225,
+    borderWidth: 2,
+    borderColor: '#E31937',
+  },
+  scanButtonText: {
+    fontFamily: 'BarlowCondensed_400Regular',
+    color: '#E31937',
     fontSize: 20,
     textAlign: 'center',
   },
