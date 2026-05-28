@@ -187,11 +187,11 @@ export default function HearingLossResultsScreen() {
       </View>
 
       <View style={styles.buttonContainer}>
-        <Pressable style={styles.pdfButton}>
-          <Text style={styles.pdfButtonText}>Download PDF</Text>
+        <Pressable style={styles.scanButton}>
+          <Text style={styles.scanButtonText}>Download PDF</Text>
         </Pressable>
-        <Pressable style={styles.scanButton} onPress={() => router.push('/upload-audiogram')}>
-          <Text style={styles.scanButtonText}>Scan new audiogram</Text>
+        <Pressable style={styles.pdfButton} onPress={() => router.push('/upload-audiogram')}>
+          <Text style={styles.pdfButtonText}>Scan new audiogram</Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -222,8 +222,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   icon: {
-    width: 200,
-    height: 200,
+    width: 240,
+    height: 240,
     marginBottom: 30,
   },
   resultBox: {
@@ -232,14 +232,14 @@ const styles = StyleSheet.create({
     padding: 20,
     marginVertical: 20,
     borderLeftWidth: 0,
-    maxWidth: 250,
+    maxWidth: 300,
   },
   resultText: {
     fontFamily: 'BarlowCondensed_400Regular',
     fontSize: 20,
     color: '#333',
     lineHeight: 26,
-    maxWidth: 250,
+    maxWidth: 300,
   },
   readMoreButton: {
     marginVertical: 15,
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginTop: 0,
     borderWidth: 0,
-    maxWidth: 250,
+    maxWidth: 300,
   },
   detailsText: {
     fontFamily: 'BarlowCondensed_400Regular',
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E31937',
     paddingVertical: 14,
     borderRadius: 25,
-    width: 225,
+    width: 270,
   },
   pdfButtonText: {
     fontFamily: 'BarlowCondensed_400Regular',
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingVertical: 14,
     borderRadius: 25,
-    width: 225,
+    width: 270,
     borderWidth: 2,
     borderColor: '#E31937',
   },

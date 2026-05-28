@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 25,
-    width: 225,
+    width: 270,
   },
   buttonText: {
     fontFamily: 'BarlowCondensed_400Regular',

@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 30,
     minHeight: 280,
-    width: 250,
+    width: 300,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f9f9f9',
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 25,
-    width: 225,
+    width: 270,
   },
   buttonText: {
     fontFamily: 'BarlowCondensed_400Regular',

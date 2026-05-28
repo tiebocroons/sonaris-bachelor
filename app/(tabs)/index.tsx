@@ -51,8 +51,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    width: 200,
-    height: 200,
+    width: 240,
+    height: 240,
     marginBottom: 20,
   },
   description: {
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 25,
-    width: 225,
+    width: 270,
   },
   buttonText: {
     fontFamily: 'BarlowCondensed_400Regular',
