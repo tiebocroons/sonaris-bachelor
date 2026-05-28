@@ -196,6 +196,17 @@ app.post('/api/scan-audiogram', async (req, res) => {
           }
         }
 
+        // Detect non-audiogram images: empty thresholds + summary indicates it's not an audiogram
+        const leftEarEmpty = !analysisData.thresholds?.leftEar || Object.keys(analysisData.thresholds.leftEar).length === 0;
+        const rightEarEmpty = !analysisData.thresholds?.rightEar || Object.keys(analysisData.thresholds.rightEar).length === 0;
+        const summaryLower = (analysisData.summary || '').toLowerCase();
+        const notAudiogramPhrases = ['not an audiogram', 'not a valid audiogram', 'photograph', 'no audiogram', 'not possible', 'cannot analyze', 'cannot be analyzed'];
+        const summaryIndicatesNotAudiogram = notAudiogramPhrases.some(p => summaryLower.includes(p));
+        if (leftEarEmpty && rightEarEmpty && summaryIndicatesNotAudiogram) {
+          analysisData.isAudiogram = false;
+          console.log('Detected non-audiogram image, flagging isAudiogram=false');
+        }
+
         responseData = { success: true, analysis: analysisData };
       } else {
         responseData = parsedResponse;

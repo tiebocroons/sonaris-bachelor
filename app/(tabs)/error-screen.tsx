@@ -52,6 +52,8 @@ const styles = StyleSheet.create({
     marginTop: 15,
     textAlign: 'center',
     lineHeight: 26,
+    width: '100%',
+    paddingHorizontal: 10,
   },
   button: {
     backgroundColor: '#E31937',

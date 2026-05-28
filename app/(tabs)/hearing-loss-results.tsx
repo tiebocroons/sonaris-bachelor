@@ -215,6 +215,8 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     color: '#000',
     textAlign: 'center',
+    flexWrap: 'wrap',
+    paddingHorizontal: 20,
   },
   iconContainer: {
     marginBottom: 30,
@@ -351,6 +353,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     width: '100%',
     alignItems: 'center',
+    gap: 12,
   },
   pdfButton: {
     backgroundColor: '#E31937',
@@ -365,7 +368,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   scanButton: {
-    marginTop: 12,
     paddingVertical: 14,
     borderRadius: 25,
     width: 270,

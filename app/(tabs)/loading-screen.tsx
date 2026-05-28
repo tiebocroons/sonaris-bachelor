@@ -129,7 +129,14 @@ export default function LoadingScreen() {
 
         if (result.success) {
           setAnalysis(result.analysis);
-          router.push('/(tabs)/hearing-loss-results');
+          if (result.analysis.isAudiogram === false) {
+            router.push({
+              pathname: '/(tabs)/error-screen',
+              params: { errorMessage: 'The image does not appear to be a valid audiogram.\nPlease provide a clear photo of an audiogram.' },
+            });
+          } else {
+            router.push('/(tabs)/hearing-loss-results');
+          }
         } else {
           throw new Error(result.error || 'Could not scan audiogram');
         }

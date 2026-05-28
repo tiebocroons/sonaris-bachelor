@@ -2,6 +2,7 @@
 
 export interface AnalysisData {
   hearingLossDetected: boolean;
+  isAudiogram?: boolean;
   severity: string;
   summary: string;
   explanation?: string;
