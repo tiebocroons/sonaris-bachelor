@@ -3,9 +3,21 @@ import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+
 import { NormalHearing } from '@/components/icons/NormalHearing';
 import { SevereHearing } from '@/components/icons/SevereHearing';
 import { getAnalysis, clearAnalysis, AnalysisData } from '@/constants/analysis-store';
+
+function loadScript(src: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error(`Failed to load ${src}`));
+    document.head.appendChild(s);
+  });
+}
 
 function buildPdfHtml(analysis: AnalysisData, title: string): string {
   const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -116,25 +128,131 @@ export default function HearingLossResultsScreen() {
   const handleDownloadPdf = async () => {
     if (!analysis) return;
     const title = getSeverityTitle(analysis.severity);
-    const html = buildPdfHtml(analysis, title);
     setPdfLoading(true);
     try {
       if (Platform.OS === 'web') {
-        const iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
-        document.body.appendChild(iframe);
-        const doc = iframe.contentWindow?.document;
-        if (doc) {
-          doc.open();
-          doc.write(html);
-          doc.close();
-          iframe.contentWindow?.focus();
-          iframe.contentWindow?.print();
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
+        const { jsPDF } = (window as any).jspdf;
+        const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const red = [227, 25, 55];
+        const dark = [34, 34, 34];
+        const grey = [100, 100, 100];
+        const pageW = doc.internal.pageSize.getWidth();
+        let y = 18;
+
+        // Header bar
+        doc.setFillColor(...red);
+        doc.rect(0, 0, pageW, 12, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(255, 255, 255);
+        doc.text('Sonaris', 14, 8.5);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text(`Generated on ${date}`, pageW - 14, 8.5, { align: 'right' });
+
+        // Title
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.setTextColor(...dark);
+        doc.text(title, 14, y + 10);
+        y += 20;
+
+        // Summary box
+        const summary = analysis.summary ?? 'Analysis complete.';
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        const summaryLines = doc.splitTextToSize(summary, pageW - 36);
+        const boxH = summaryLines.length * 6 + 8;
+        doc.setFillColor(253, 240, 242);
+        doc.setDrawColor(...red);
+        doc.setLineWidth(1);
+        doc.rect(14, y, pageW - 28, boxH, 'FD');
+        doc.setTextColor(...dark);
+        doc.text(summaryLines, 18, y + 7);
+        y += boxH + 8;
+
+        // Detail sections
+        const sections: [string, string | undefined][] = [
+          ['Explanation', analysis.explanation],
+          ['Analysis', analysis.whyHearingLoss],
+          ['How we read it', analysis.howAnalysis],
+        ];
+        for (const [label, value] of sections) {
+          if (!value) continue;
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          doc.setTextColor(...red);
+          doc.text(`${label}:`, 14, y);
+          const labelW = doc.getTextWidth(`${label}: `);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(...dark);
+          const lines = doc.splitTextToSize(value, pageW - 28 - labelW);
+          doc.text(lines[0], 14 + labelW, y);
+          if (lines.length > 1) {
+            const rest = doc.splitTextToSize(lines.slice(1).join(' '), pageW - 28);
+            doc.text(rest, 14, y + 5);
+            y += rest.length * 5 + 8;
+          } else {
+            y += 8;
+          }
         }
-        setTimeout(() => {
-          if (document.body.contains(iframe)) document.body.removeChild(iframe);
-        }, 2000);
+
+        // Thresholds table
+        if (analysis.thresholds) {
+          const t = analysis.thresholds as { leftEar?: Record<string, number>; rightEar?: Record<string, number> };
+          const freqKeys = ['250', '500', '1000', '2000', '4000', '8000'];
+          const freqLabels = ['250', '500', '1k', '2k', '4k', '8k'];
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          doc.setTextColor(...red);
+          doc.text('Thresholds (dB HL)', 14, y);
+          y += 4;
+          const rows = [];
+          if (t.leftEar)  rows.push(['L', ...freqKeys.map(f => t.leftEar![f] ?? '—')]);
+          if (t.rightEar) rows.push(['R', ...freqKeys.map(f => t.rightEar![f] ?? '—')]);
+          doc.autoTable({
+            startY: y,
+            head: [['Ear', ...freqLabels]],
+            body: rows,
+            margin: { left: 14, right: 14 },
+            headStyles: { fillColor: red, textColor: [255, 255, 255], fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [253, 240, 242] },
+            styles: { fontSize: 10, halign: 'center' },
+            columnStyles: { 0: { fontStyle: 'bold', textColor: red } },
+          });
+          y = doc.lastAutoTable.finalY + 8;
+        }
+
+        // Recommendations
+        if (analysis.recommendations?.length) {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          doc.setTextColor(...red);
+          doc.text('Recommendations', 14, y);
+          y += 5;
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(...dark);
+          doc.setFontSize(10);
+          for (const rec of analysis.recommendations as string[]) {
+            const lines = doc.splitTextToSize(`• ${rec}`, pageW - 32);
+            doc.text(lines, 18, y);
+            y += lines.length * 5 + 2;
+          }
+        }
+
+        // Footer
+        const footerY = doc.internal.pageSize.getHeight() - 10;
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(8);
+        doc.setTextColor(...grey);
+        doc.text('This report was generated by Sonaris and is intended as an informational aid only. It does not replace a professional medical diagnosis.', pageW / 2, footerY, { align: 'center', maxWidth: pageW - 28 });
+
+        doc.save('sonaris-report.pdf');
       } else {
+        const html = buildPdfHtml(analysis, title);
         const { uri } = await Print.printToFileAsync({ html });
         if (await Sharing.isAvailableAsync()) {
           await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Save or share your report' });
@@ -147,6 +265,24 @@ export default function HearingLossResultsScreen() {
     } finally {
       setPdfLoading(false);
     }
+  };
+
+  const handlePrint = () => {
+    if (!analysis) return;
+    const title = getSeverityTitle(analysis.severity);
+    const html = buildPdfHtml(analysis, title);
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+    document.body.appendChild(iframe);
+    const iDoc = iframe.contentWindow?.document;
+    if (iDoc) {
+      iDoc.open();
+      iDoc.write(html);
+      iDoc.close();
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+    }
+    setTimeout(() => { if (document.body.contains(iframe)) document.body.removeChild(iframe); }, 2000);
   };
 
   const getSeverityTitle = (severity: string) => {
@@ -301,6 +437,11 @@ export default function HearingLossResultsScreen() {
         <Pressable style={[styles.scanButton, pdfLoading && styles.buttonDisabled]} onPress={handleDownloadPdf} disabled={pdfLoading}>
           <Text style={styles.scanButtonText}>{pdfLoading ? 'Generating…' : 'Download PDF'}</Text>
         </Pressable>
+        {Platform.OS === 'web' && (
+          <Pressable style={styles.printButton} onPress={handlePrint}>
+            <Text style={styles.printButtonText}>Print</Text>
+          </Pressable>
+        )}
         <Pressable style={styles.pdfButton} onPress={() => router.push('/upload-audiogram')}>
           <Text style={styles.pdfButtonText}>Scan new audiogram</Text>
         </Pressable>
@@ -487,6 +628,16 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.5,
+  },
+  printButton: {
+    paddingVertical: 10,
+  },
+  printButtonText: {
+    fontFamily: 'BarlowCondensed_400Regular',
+    color: '#999',
+    fontSize: 16,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
   scanButtonText: {
     fontFamily: 'BarlowCondensed_400Regular',
