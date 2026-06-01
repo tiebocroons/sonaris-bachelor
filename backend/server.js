@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const N8N_URL = 'https://bachelor.app.n8n.cloud/webhook/852c2c14-861a-426e-8eee-067e2a079a9d';
-const N8N_TIMEOUT_MS = 30000; // 30s per attempt
+const N8N_TIMEOUT_MS = 50000; // 50s per attempt (2 attempts = 100s max, within nginx 120s limit)
 const N8N_MAX_ATTEMPTS = 2;
 
 const VALID_SEVERITIES = new Set(['normal', 'mild', 'moderate', 'moderately_severe', 'severe', 'profound']);
