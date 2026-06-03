@@ -22,11 +22,25 @@ A React Native / Expo web app that lets clinicians photograph or upload an audio
 | Layer | Technology |
 |-------|-----------|
 | Frontend | React Native + Expo (web export) |
+| Fonts | Barlow Condensed (Google Fonts via expo-google-fonts) |
 | Backend proxy | Node.js + Express |
-| AI pipeline | N8N → Google Gemini |
+| AI pipeline | N8N → Google Gemini Vision |
 | Image hosting | Cloudinary |
 | Web server | nginx on CentOS VPS |
 | Process manager | PM2 |
+
+---
+
+## App Screens
+
+| Screen | Route | Description |
+|--------|-------|-------------|
+| Home | `/` | Landing page with logo and navigation |
+| Scan instructions | `/scan-instructions` | How-to guide before scanning |
+| Upload audiogram | `/upload-audiogram` | Camera or gallery image picker |
+| Loading | `/loading-screen` | Uploads to Cloudinary, calls backend, polls N8N |
+| Results | `/hearing-loss-results` | Displays severity, thresholds, and explanation |
+| Error | `/error-screen` | Shown when analysis fails |
 
 ---
 
@@ -51,18 +65,20 @@ npm start
 
 Server runs on `http://localhost:3000`.
 
-Update `BACKEND_URL` in `app/(tabs)/loading-screen.tsx` if testing on a mobile device (use your machine's local IP).
+For local development, temporarily change `BACKEND_URL` in `app/(tabs)/loading-screen.tsx` to `http://localhost:3000/api/scan-audiogram` (or your machine's LAN IP for mobile testing). In production, nginx proxies `/api/` directly to the backend, so the frontend only needs the domain.
 
 ---
 
 ## Configuration
 
-| File | Variable | Description |
+| File | Constant | Description |
 |------|----------|-------------|
-| `app/(tabs)/loading-screen.tsx` | `BACKEND_URL` | URL of the backend proxy |
+| `app/(tabs)/loading-screen.tsx` | `BACKEND_URL` | Backend proxy URL (`https://sonaris.tiebocroons.be/api/scan-audiogram` in prod) |
 | `app/(tabs)/loading-screen.tsx` | `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name |
 | `app/(tabs)/loading-screen.tsx` | `CLOUDINARY_UPLOAD_PRESET` | Unsigned upload preset name |
-| `backend/server.js` | `N8N_WEBHOOK_URL` | Your N8N webhook endpoint |
+| `backend/server.js` | `N8N_URL` | Your N8N webhook endpoint |
+| `backend/server.js` | `N8N_TIMEOUT_MS` | Per-attempt timeout in ms (default 50 000) |
+| `backend/server.js` | `N8N_MAX_ATTEMPTS` | Number of retry attempts (default 2) |
 
 ---
 
