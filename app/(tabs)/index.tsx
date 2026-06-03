@@ -19,7 +19,7 @@ export default function HomeScreen() {
           to your patients.
         </Text>
         <Pressable 
-          style={styles.infoLink}
+          style={({ pressed }) => [styles.infoLink, pressed && styles.infoLinkPressed]}
           onPress={() => router.push('/(tabs)/scan-instructions')}
         >
           <Text style={styles.infoLinkText}>More info about the app</Text>
@@ -65,12 +65,21 @@ const styles = StyleSheet.create({
   },
   infoLink: {
     marginTop: 20,
+    borderWidth: 2,
+    borderColor: '#E31937',
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    width: 270,
+  },
+  infoLinkPressed: {
+    backgroundColor: '#fdeaed',
   },
   infoLinkText: {
     fontFamily: 'BarlowCondensed_400Regular',
     fontSize: 20,
     color: '#E31937',
-    textDecorationLine: 'underline',
+    textAlign: 'center',
   },
   title: {
     fontSize: 28,

@@ -267,24 +267,6 @@ export default function HearingLossResultsScreen() {
     }
   };
 
-  const handlePrint = () => {
-    if (!analysis) return;
-    const title = getSeverityTitle(analysis.severity);
-    const html = buildPdfHtml(analysis, title);
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
-    document.body.appendChild(iframe);
-    const iDoc = iframe.contentWindow?.document;
-    if (iDoc) {
-      iDoc.open();
-      iDoc.write(html);
-      iDoc.close();
-      iframe.contentWindow?.focus();
-      iframe.contentWindow?.print();
-    }
-    setTimeout(() => { if (document.body.contains(iframe)) document.body.removeChild(iframe); }, 2000);
-  };
-
   const getSeverityTitle = (severity: string) => {
     switch (severity?.toLowerCase()) {
       case 'normal':
@@ -437,11 +419,6 @@ export default function HearingLossResultsScreen() {
         <Pressable style={[styles.scanButton, pdfLoading && styles.buttonDisabled]} onPress={handleDownloadPdf} disabled={pdfLoading}>
           <Text style={styles.scanButtonText}>{pdfLoading ? 'Generating…' : 'Download PDF'}</Text>
         </Pressable>
-        {Platform.OS === 'web' && (
-          <Pressable style={styles.printButton} onPress={handlePrint}>
-            <Text style={styles.printButtonText}>Print</Text>
-          </Pressable>
-        )}
         <Pressable style={styles.pdfButton} onPress={() => router.push('/upload-audiogram')}>
           <Text style={styles.pdfButtonText}>Scan new audiogram</Text>
         </Pressable>
@@ -628,16 +605,6 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.5,
-  },
-  printButton: {
-    paddingVertical: 10,
-  },
-  printButtonText: {
-    fontFamily: 'BarlowCondensed_400Regular',
-    color: '#999',
-    fontSize: 16,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
   },
   scanButtonText: {
     fontFamily: 'BarlowCondensed_400Regular',
