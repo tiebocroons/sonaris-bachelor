@@ -1,102 +1,113 @@
 # Sonaris Backend Proxy Server
 
-This backend proxy server relays requests from the Expo frontend to the N8N webhook, bypassing browser CORS restrictions.
+Express proxy server that relays audiogram image analysis requests from the Expo frontend to the N8N webhook, handling CORS, response parsing, JSON repair, and severity normalization.
 
 ## Architecture
 
 ```
-Browser (localhost:8081)
-    ↓ (POST to http://localhost:3000/api/scan-audiogram)
+Browser / Expo app (localhost:8081)
+    ↓  POST /api/scan-audiogram  { imageUrl }
 Express Proxy Server (localhost:3000)
-    ↓ (no CORS restrictions - server-to-server)
+    ↓  POST (server-to-server, no CORS restrictions)
 N8N Webhook (bachelor.app.n8n.cloud)
     ↓
-Gemini Processing
+Gemini Vision API
     ↓
-Results returned through proxy to frontend
+Parsed & normalized JSON results → frontend
 ```
 
 ## Setup
 
 ### 1. Install Dependencies
 
-Navigate to the backend directory and install dependencies:
-
 ```bash
 cd backend
 npm install
 ```
 
-This installs:
-- **express**: Web framework
-- **cors**: Enable CORS headers for frontend requests
-- **node-fetch**: Make HTTP requests to N8N
+Dependencies:
+- **express** — web framework
+- **cors** — CORS headers for frontend requests
+- **node-fetch** — HTTP requests to N8N
 
-### 2. Run the Backend Server
+Dev dependencies:
+- **nodemon** — auto-reload on file changes
 
-Start the proxy server:
+### 2. Run the Server
 
 ```bash
+# Production
 npm start
-```
 
-Or with auto-reload during development:
-
-```bash
+# Development (auto-reload)
 npm run dev
 ```
 
-You should see:
-```
-Backend proxy server running on http://localhost:3000
-Health check: http://localhost:3000/health
-Webhook relay: POST http://localhost:3000/api/scan-audiogram
-```
+The server starts on `http://localhost:3000`.
 
 ## Endpoints
 
-### Health Check
-- **URL**: `GET http://localhost:3000/health`
-- **Response**: `{ status: "OK" }`
-- **Purpose**: Verify server is running
+### `GET /health`
+Returns `{ "status": "OK" }`. Used to verify the server is running.
 
-### Scan Audiogram (Main Proxy)
-- **URL**: `POST http://localhost:3000/api/scan-audiogram`
-- **Request Body**:
-  ```json
-  {
-    "imageUrl": "https://res.cloudinary.com/...",
-    "fileName": "audiogram.jpg"
-  }
-  ```
-- **Response**: N8N webhook response containing analysis results
-- **Purpose**: Relay audiogram image to N8N for Gemini processing
+### `POST /api/scan-audiogram`
 
-## How It Works
+Proxies an audiogram image to N8N for Gemini Vision analysis.
 
-1. **Frontend** (Expo app) captures and compresses an image
-2. **Frontend** uploads compressed image to Cloudinary
-3. **Frontend** sends Cloudinary URL to proxy: `POST localhost:3000/api/scan-audiogram`
-4. **Backend Proxy** receives request and forwards to N8N webhook with full URL
-5. **N8N Webhook** processes the image:
-   - Fetches image from Cloudinary URL
-   - Sends to Gemini Vision API for analysis
-   - Returns hearing loss assessment
-6. **Backend Proxy** receives N8N response and returns to frontend
-7. **Frontend** displays results
-
-## Why This Approach?
-
-**Problem**: Browser CORS policy blocks direct frontend → N8N requests
+**Request body:**
+```json
+{ "imageUrl": "https://res.cloudinary.com/..." }
 ```
-Access to fetch at 'https://bachelor.app.n8n.cloud/webhook/...' 
+
+**Success response:**
+```json
+{
+  "success": true,
+  "analysis": {
+    "hearingLossDetected": true,
+    "severity": "moderate",
+    "summary": "...",
+    "explanation": "...",
+    "whyHearingLoss": "...",
+    "howAnalysis": "...",
+    "thresholds": {
+      "leftEar": { "500": 40, "1000": 50, ... },
+      "rightEar": { "500": 35, "1000": 45, ... }
+    },
+    "isAudiogram": true
+  }
+}
+```
+
+**Error / timeout response:**
+```json
+{ "error": "Analysis timed out — please try again", "details": "..." }
+```
+
+## Request Pipeline
+
+1. Frontend uploads a compressed image to Cloudinary and gets a URL.
+2. Frontend sends `POST /api/scan-audiogram` with `{ imageUrl }`.
+3. Proxy forwards the URL to N8N (up to **2 attempts**, 50 s timeout each).
+4. N8N fetches the image and runs Gemini Vision analysis.
+5. Proxy parses the response:
+   - Handles gzip decompression.
+   - Strips markdown code fences from the Gemini output.
+   - Attempts `JSON.parse`, then a structural JSON repair, then regex field extraction as a last resort.
+   - Normalizes the `severity` field to one of: `normal`, `mild`, `moderate`, `moderately_severe`, `severe`, `profound`, or `unknown`.
+   - Sanitizes numeric threshold values (non-numbers become `null`).
+   - Sets `isAudiogram: false` when thresholds are empty and the summary indicates a non-audiogram image.
+6. Normalized result is returned to the frontend.
+
+## Why a Proxy?
+
+Direct browser → N8N requests are blocked by CORS policy:
+```
+Access to fetch at 'https://bachelor.app.n8n.cloud/webhook/...'
 has been blocked by CORS policy
 ```
 
-**Solution**: Relay through backend server
-- Server-to-server requests have NO CORS restrictions
-- Frontend-to-server requests configured with proper CORS headers
-- Maintains security while enabling workflow
+The proxy sits server-side, where CORS does not apply, and adds proper `Access-Control-Allow-Origin` headers for the frontend.
 
 ## Environment Configuration
 
@@ -179,17 +190,3 @@ backend/
 ├── package.json        # Node.js dependencies
 └── README.md          # This file
 ```
-
-## Next Steps
-
-Once backend is working:
-1. ✅ Image compression (already working)
-2. ✅ Cloudinary upload (already working)
-3. ✅ Backend proxy (in progress)
-4. ⏳ N8N webhook relay (will work with backend)
-5. ⏳ Gemini analysis (handled by N8N)
-6. ⏳ Results display (frontend)
-
----
-
-For issues or questions about the N8N workflow, check the N8N instance at: https://bachelor.app.n8n.cloud/
